@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        {{ css_content | safe }}
+    </style>
+</head>
+<body>
+
+<div id="footer_content">
+    Cubemoons Pvt. Ltd. | Proprietary & Confidential | {{ audit.audit_meta.client_name }}
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ COVER PAGE -->
+<div class="cover-wrapper page-break">
+    <div class="cover-header"></div>
+    <div class="cover-body">
+        <div class="cover-logo">CUBEMOONS</div>
+        
+        <div class="cover-label">CLIENT DIGITAL AUDIT REPORT</div>
+        <div class="cover-title">{{ audit.audit_meta.client_name }}</div>
+        <div class="cover-headline">{{ audit.section_1_executive_summary.headline }}</div>
+
+        <table class="meta-table">
+            <tr>
+                <td width="33%">
+                    <div class="meta-label">Industry</div>
+                    <div class="meta-value">{{ audit.audit_meta.industry }}</div>
+                </td>
+                <td width="33%">
+                    <div class="meta-label">Prepared By</div>
+                    <div class="meta-value">Cubemoons AI</div>
+                </td>
+                <td width="33%">
+                    <div class="meta-label">Date</div>
+                    <div class="meta-value">{{ audit.audit_meta.audit_date }}</div>
+                </td>
+            </tr>
+        </table>
+        
+        <div style="margin-top: 40pt; font-size: 10pt; color: #6B7280;">
+            Status: Final Report for Proposed Digital Transformation
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ S1: EXECUTIVE SUMMARY -->
+{% set s1 = audit.section_1_executive_summary %}
+<div class="page-break">
+    <div class="section-tag">SECTION 01</div>
+    <h2 class="section-header">Executive Summary</h2>
+    
+    <div class="headline-block">"{{ s1.headline }}"</div>
+    
+    <p>{{ s1.overview }}</p>
+
+    <div style="margin-top: 30pt;">
+        <table width="100%" cellpadding="10">
+            <tr>
+                {% for m in s1.key_metrics[:3] %}
+                <td width="33%">
+                    <div class="metric-card">
+                        <div class="metric-val">{{ m.value }}</div>
+                        <div class="metric-lab">{{ m.label }}</div>
+                    </div>
+                </td>
+                {% endfor %}
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ S2 & S3: ANALYSIS -->
+{% set s2 = audit.section_2_company_overview %}
+{% set s3 = audit.section_3_current_state_analysis %}
+<div class="page-break">
+    <div class="section-tag">SECTION 02</div>
+    <h2 class="section-header">Company Overview</h2>
+    <p>{{ s2.about }}</p>
+    
+    <div style="margin-top: 30pt;">
+        <div class="section-tag">SECTION 03</div>
+        <h2 class="section-header">SWOT Analysis</h2>
+        <table class="swot-table">
+            <tr>
+                <td class="swot-cell swot-s">
+                    <div class="swot-title">Strengths</div>
+                    <ul>{% for i in s3.strengths %}<li>{{ i }}</li>{% endfor %}</ul>
+                </td>
+                <td class="swot-cell swot-w">
+                    <div class="swot-title">Weaknesses</div>
+                    <ul>{% for i in s3.weaknesses %}<li>{{ i }}</li>{% endfor %}</ul>
+                </td>
+            </tr>
+            <tr>
+                <td class="swot-cell swot-o">
+                    <div class="swot-title">Opportunities</div>
+                    <ul>{% for i in s3.opportunities %}<li>{{ i }}</li>{% endfor %}</ul>
+                </td>
+                <td class="swot-cell swot-t">
+                    <div class="swot-title">Threats</div>
+                    <ul>{% for i in s3.threats %}<li>{{ i }}</li>{% endfor %}</ul>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ S4: PROBLEMS -->
+{% set s4 = audit.section_4_problem_identification %}
+<div class="page-break">
+    <div class="section-tag">SECTION 04</div>
+    <h2 class="section-header">Problem Identification</h2>
+    <p style="margin-bottom: 20pt;">{{ s4.problem_summary }}</p>
+
+    {% for p in s4.primary_problems %}
+    <div class="problem-card" style="border-left-color: {% if p.priority == 'Critical' %}#EF4444{% elif p.priority == 'High' %}#F59E0B{% else %}#3B82F6{% endif %};">
+        <table width="100%">
+            <tr>
+                <td class="problem-title">{{ p.problem_title }}</td>
+                <td align="right"><span class="priority-tag">{{ p.priority | upper }}</span></td>
+            </tr>
+        </table>
+        <p style="margin: 10pt 0;">{{ p.description }}</p>
+        <table width="100%" style="font-size: 9pt; color: #6B7280; background: #FFFFFF; padding: 5pt;">
+            <tr>
+                <td><strong>Impact:</strong> {{ p.business_impact }}</td>
+                <td><strong>Root Cause:</strong> {{ p.root_cause }}</td>
+            </tr>
+        </table>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ S5: SOLUTION -->
+{% set s5 = audit.section_5_proposed_solution %}
+<div class="page-break">
+    <div class="section-tag">SECTION 05</div>
+    <h2 class="section-header">Proposed Solution</h2>
+    <div class="headline-block">{{ s5.solution_overview }}</div>
+
+    <table width="100%" cellpadding="5">
+        {% for c in s5.solution_components %}
+        <tr>
+            <td>
+                <div class="card">
+                    <div style="font-weight: bold; color: #FF6B35; font-size: 11pt;">{{ c.component_name }}</div>
+                    <p style="margin: 5pt 0; font-size: 10pt;">{{ c.what_we_build }}</p>
+                    <div style="font-size: 8pt; color: #6B7280;">Capability: {{ c.cubemoons_service }}</div>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ FLOWCHART -->
+{% if audit.flowchart_data %}
+<div class="page-break">
+    <div class="section-tag">ARCHITECTURE</div>
+    <h2 class="section-header">Proposed Implementation Workflow</h2>
+    
+    {% for step in audit.flowchart_data.steps %}
+    <table class="flow-step-table">
+        <tr>
+            <td class="flow-step-header" style="background-color: {{ step.color }};">
+                Step {{ step.number }}: {{ step.title }}
+            </td>
+        </tr>
+        <tr>
+            <td class="flow-step-body">
+                <div style="font-weight: bold; margin-bottom: 5pt;">{{ step.description }}</div>
+                <ul>
+                    {% for b in step.bullets %}<li>{{ b }}</li>{% endfor %}
+                </ul>
+            </td>
+        </tr>
+    </table>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- ═══════════════════════════════════════════════════════ ROADMAP & CTA -->
+{% set s7 = audit.section_7_implementation_roadmap %}
+{% set s10 = audit.section_10_next_steps %}
+<div class="page-break">
+    <div class="section-tag">SECTION 07</div>
+    <h2 class="section-header">Implementation Roadmap</h2>
+    
+    {% for ph in s7.phases %}
+    <div class="phase-card">
+        <table width="100%">
+            <tr>
+                <td style="font-weight: bold; font-size: 11pt;">Phase {{ ph.phase_number }}: {{ ph.phase_name }}</td>
+                <td align="right" style="font-size: 9pt; color: #6B7280;">{{ ph.duration }}</td>
+            </tr>
+        </table>
+        <ul style="margin: 5pt 0; font-size: 10pt;">
+            {% for d in ph.deliverables %}<li>{{ d }}</li>{% endfor %}
+        </ul>
+        <div style="font-size: 9pt; font-weight: bold; color: #10B981;">Milestone: {{ ph.milestone }}</div>
+    </div>
+    {% endfor %}
+
+    <div style="margin-top: 40pt; padding: 30pt; background: #0A0A0F; color: white; border-radius: 10pt; text-align: center;">
+        <div style="color: #FF6B35; font-weight: bold; letter-spacing: 2pt; font-size: 10pt; margin-bottom: 10pt;">SECTION 10</div>
+        <div style="font-size: 24pt; font-weight: bold; margin-bottom: 10pt;">{{ s10.cta_headline }}</div>
+        <p style="color: #9CA3AF; margin-bottom: 20pt;">{{ s10.recommended_next_step }}</p>
+        
+        <table width="100%" style="color: white; font-size: 10pt; border-top: 1px solid #374151; padding-top: 20pt;">
+            <tr>
+                <td>Phone: {{ s10.contact.phone }}</td>
+                <td>Email: {{ s10.contact.email }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

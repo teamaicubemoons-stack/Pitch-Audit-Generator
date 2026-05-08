@@ -1,0 +1,245 @@
+/* 
+   Cubemoons Audit Generator — Professional PDF Styles 
+   Optimized for WeasyPrint (A4)
+*/
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+:root {
+  --primary: #0A0A0F;
+  --accent: #FF6B35;
+  --accent2: #6C63FF;
+  --text-dark: #1F2937;
+  --text-gray: #4B5563;
+  --bg-light: #F9FAFB;
+  --border: #E5E7EB;
+}
+
+body {
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text-dark);
+  line-height: 1.5;
+  background: white;
+  margin: 0;
+  padding: 0;
+}
+
+* { box-sizing: border-box; }
+
+.page {
+  width: 210mm;
+  height: 297mm;
+  padding: 20mm;
+  page-break-after: always;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════ COVER PAGE */
+.cover-page {
+  background: radial-gradient(circle at top right, #1a0a2e, #0A0A0F);
+  color: white;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.cover-top-bar {
+  height: 6px;
+  background: linear-gradient(to right, var(--accent), var(--accent2));
+}
+
+.cover-content {
+  padding: 25mm 20mm;
+  flex-grow: 1;
+}
+
+.cover-label {
+  color: var(--accent);
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 4px;
+  margin-bottom: 10px;
+}
+
+.cover-client {
+  font-size: 48px;
+  font-weight: 900;
+  margin: 0 0 20px 0;
+  line-height: 1.1;
+}
+
+.cover-headline {
+  color: #9CA3AF;
+  font-size: 18px;
+  max-width: 80%;
+  margin-bottom: 40px;
+}
+
+.cover-meta {
+  margin-top: 60px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 20px;
+}
+
+.cover-meta-item {
+  margin-bottom: 15px;
+}
+
+.meta-k { color: #6B7280; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+.meta-v { color: white; font-weight: bold; font-size: 16px; }
+
+.cover-score-card {
+  position: absolute;
+  right: 20mm;
+  top: 100mm;
+  width: 50mm;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+}
+
+.score-num { font-size: 48px; font-weight: 900; color: var(--accent); line-height: 1; }
+.score-lab { font-size: 10px; color: #9CA3AF; text-transform: uppercase; margin-top: 5px; }
+
+.cover-footer {
+  background: rgba(0,0,0,0.3);
+  padding: 10mm 20mm;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #6B7280;
+}
+
+/* ═══════════════════════════════════════════════════════ COMMON ELEMENTS */
+.section-tag {
+  background: var(--primary);
+  color: white;
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-weight: 900;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-size: 28px;
+  font-weight: 900;
+  margin: 0 0 20px 0;
+  color: var(--primary);
+}
+
+.headline-block {
+  border-left: 5px solid var(--accent);
+  padding-left: 20px;
+  margin: 20px 0;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--text-dark);
+}
+
+.body-p {
+  font-size: 14px;
+  color: var(--text-gray);
+  margin-bottom: 20px;
+}
+
+/* ═══════════════════════════════════════════════════════ CARDS & GRIDS */
+.card {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.metrics-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.metric-box {
+  flex: 1;
+  background: var(--bg-light);
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+}
+
+.m-val { font-size: 24px; font-weight: 900; color: var(--accent); }
+.m-lab { font-size: 12px; font-weight: bold; color: var(--primary); }
+
+.swot-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.swot-box { padding: 15px; border-radius: 12px; height: 100mm; }
+.swot-s { background: #ECFDF5; border: 1px solid #10B981; color: #065F46; }
+.swot-w { background: #FEF2F2; border: 1px solid #EF4444; color: #991B1B; }
+.swot-o { background: #EFF6FF; border: 1px solid #3B82F6; color: #1E40AF; }
+.swot-t { background: #FFFBEB; border: 1px solid #F59E0B; color: #92400E; }
+
+.swot-box h4 { margin: 0 0 10px 0; font-size: 16px; font-weight: 900; }
+.swot-box ul { padding-left: 15px; margin: 0; font-size: 12px; }
+
+/* ═══════════════════════════════════════════════════════ ROADMAP */
+.phase-card {
+  border-left: 3px solid var(--accent);
+  margin-bottom: 20px;
+  padding: 15px 20px;
+  background: var(--bg-light);
+}
+
+.phase-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.p-num { color: var(--accent); font-weight: 900; font-size: 12px; }
+.p-dur { color: var(--text-gray); font-size: 12px; }
+.p-name { font-weight: 800; font-size: 16px; }
+
+/* ═══════════════════════════════════════════════════════ INFOGRAPHIC FLOWCHART */
+.flow-step {
+  border-radius: 10px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.flow-step-head {
+  padding: 8px 15px;
+  color: white;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.flow-step-body {
+  padding: 10px 15px;
+  font-size: 12px;
+}
+
+.flow-step-body ul { margin: 5px 0 0 0; padding-left: 15px; }
+
+/* ═══════════════════════════════════════════════════════ BACK COVER */
+.back-cover {
+  background: var(--primary);
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.back-logo { font-size: 32px; font-weight: 900; letter-spacing: 2px; margin-bottom: 10px; }
+.back-tag { color: #6B7280; margin-bottom: 40px; }
+.back-contact { color: white; font-size: 14px; line-height: 2; }

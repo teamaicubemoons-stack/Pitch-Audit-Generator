@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+/* Print Optimizations */
+@media print {
+  @page {
+    size: A4;
+    margin: 1.5cm 0; /* Vertical margin for header/footer space */
+  }
+
+  body {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Branded Header Wave (Pseudo-element) */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1.5cm;
+    background: linear-gradient(135deg, #0A0A0F 0%, #1a1a2e 70%, #3B82F6 100%);
+    clip-path: polygon(0 0, 100% 0, 100% 60%, 0% 100%);
+    z-index: 9999;
+  }
+
+  /* Branded Footer Bar */
+  body::after {
+    content: "CUBEMOONS • Strategic AI Solutions • www.cubemoons.com";
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0.8cm;
+    background: #0A0A0F;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8pt;
+    font-weight: bold;
+    z-index: 9999;
+  }
+
+  header, nav, footer, .print-hidden, button, a[href^="/"], .back-link {
+    display: none !important;
+  }
+
+  main {
+    padding: 1.5cm 1.5cm !important;
+    margin: 0 !important;
+  }
+
+  /* Each section starts on a new page */
+  .print-page-break {
+    break-before: page;
+    padding-top: 1cm !important;
+  }
+
+  .bg-gradient-to-br, .bg-brand-dark, .bg-brand-orange, .bg-brand-purple, .bg-orange-50 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+  }
+  
+  .glass-dark {
+    @apply bg-brand-dark/90 backdrop-blur-md border border-white/10 shadow-2xl;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-orange to-brand-purple;
+  }
+}
+
+/* Custom scrollbar for aesthetic */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
