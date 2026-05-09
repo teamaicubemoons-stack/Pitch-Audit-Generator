@@ -1,47 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import * as Icons from 'lucide-react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jsPDF';
 import VisualFlowchart from './VisualFlowchart';
 import {
   Download, ChevronDown, ChevronUp, Star, Zap, Target,
-  TrendingUp, Shield, Users, Clock, CheckCircle2, AlertTriangle, AlertCircle, ArrowRight
+  TrendingUp, Shield, Users, Clock, CheckCircle2, AlertTriangle, AlertCircle, ArrowRight, Printer, Loader2, Sparkles, Cpu, Briefcase, Globe, Mail, Phone, Calendar
 } from 'lucide-react';
 
-const Section = ({ id, icon: Icon, title, accent, children, defaultOpen = false }) => {
-  const [open, setOpen] = useState(defaultOpen);
+const Section = ({ id, icon: Icon, title, accent, children, forceOpen }) => {
+  const [open, setOpen] = useState(true);
+  useEffect(() => { if (forceOpen) setOpen(true); }, [forceOpen]);
+
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-black text-sm" style={{ background: accent }}>
-            {id}
+    <div className="Section bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden transition-all duration-300">
+      <div className="w-full flex items-center justify-between px-6 py-4 border-b border-slate-50">
+        <div className="flex items-center gap-4">
+          <div className="text-[9px] font-black text-slate-300 tracking-[0.2em] uppercase">{id}</div>
+          <div className="flex items-center gap-3">
+            <div className="p-1.5 rounded-lg" style={{ backgroundColor: `${accent}10`, color: accent }}>
+              <Icon size={16} />
+            </div>
+            <h2 className="text-base font-bold text-slate-900 m-0 tracking-tight">{title}</h2>
           </div>
-          <Icon size={18} className="text-gray-500" />
-          <h3 className="font-bold text-base text-brand-dark">{title}</h3>
         </div>
-        {open ? <ChevronUp size={18} className="text-gray-400" /> : <ChevronDown size={18} className="text-gray-400" />}
-      </button>
-      {open && <div className="px-6 pb-6 border-t border-gray-100">{children}</div>}
+        {!forceOpen && (
+          <button onClick={() => setOpen(o => !o)} className="text-slate-300 hover:text-slate-600 export-hide">
+            {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
+        )}
+      </div>
+      {(open || forceOpen) && (
+        <div className="px-6 pb-8 bg-white/50 backdrop-blur-sm">
+          <div className="pt-6">{children}</div>
+        </div>
+      )}
     </div>
   );
 };
 
-const Tag = ({ children, color }) => (
-  <span className="inline-block px-3 py-1 rounded-full text-white text-xs font-bold" style={{ background: color }}>
-    {children}
-  </span>
-);
-
 const priorityConfig = {
-  Critical: { color: '#EF4444', bg: '#FEF2F2', Icon: AlertCircle },
-  High:     { color: '#F59E0B', bg: '#FFFBEB', Icon: AlertTriangle },
-  Medium:   { color: '#6C63FF', bg: '#F5F3FF', Icon: Target },
+  Critical: { color: '#DC2626', bg: '#FEF2F2', Icon: AlertCircle },
+  High:     { color: '#D97706', bg: '#FFFBEB', Icon: AlertTriangle },
+  Medium:   { color: '#4F46E5', bg: '#F5F3FF', Icon: Target },
 };
 
-export default function AuditPreview({ auditData, pdfUrl }) {
-  const { audit_sections: a, flowchart_data, generation_time_seconds } = auditData;
+export default function AuditPreview({ auditData }) {
+  const { audit_sections: a, flowchart_data } = auditData;
+  const auditRef = useRef(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [forceOpenAll, setForceOpenAll] = useState(false);
+
   if (!a) return null;
 
   const meta  = a.audit_meta || {};
@@ -56,383 +65,296 @@ export default function AuditPreview({ auditData, pdfUrl }) {
   const s9    = a.section_9_why_cubemoons || {};
   const s10   = a.section_10_next_steps || {};
 
+  const handleDownloadPDF = async () => {
+    if (!auditRef.current) return;
+    setIsExporting(true);
+    setForceOpenAll(true);
+    
+    // Wake up rendering engines
+    window.scrollTo(0, document.body.scrollHeight);
+    await new Promise(resolve => setTimeout(resolve, 800));
+    window.scrollTo(0, 0);
+
+    // Final buffer for all components
+    await new Promise(resolve => setTimeout(resolve, 2500));
+
+    try {
+      const element = auditRef.current;
+      const originalWidth = element.offsetWidth;
+      
+      // MASSIVE BUFFER: 800px extra to ensure footer is 100% inside
+      const fullHeight = element.scrollHeight + 800; 
+
+      const canvas = await html2canvas(element, {
+        scale: 1.8, 
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#F8FAFC",
+        logging: false,
+        width: originalWidth,
+        height: fullHeight,
+        windowWidth: originalWidth,
+        windowHeight: fullHeight + 1000, // Force a massive viewport
+        scrollX: 0,
+        scrollY: 0,
+        x: 0,
+        y: 0,
+        onclone: (clonedDoc) => {
+          const cloneContainer = clonedDoc.querySelector('.audit-capture-container');
+          if (cloneContainer) {
+            cloneContainer.style.width = `${originalWidth}px`;
+            cloneContainer.style.height = `${fullHeight}px`;
+            cloneContainer.style.paddingBottom = '400px'; // Force bottom margin
+            cloneContainer.style.borderRadius = '0';
+            cloneContainer.style.border = 'none';
+            cloneContainer.style.overflow = 'visible';
+          }
+          clonedDoc.querySelectorAll('.export-hide').forEach(el => el.style.display = 'none');
+        }
+      });
+
+      const imgData = canvas.toDataURL("image/jpeg", 0.9);
+      const pdfWidth = 210;
+      // Add extra 5mm to PDF height for safety margin
+      const pdfHeight = ((canvas.height * pdfWidth) / canvas.width) + 10; 
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: [pdfWidth, pdfHeight]
+      });
+
+      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight - 10, undefined, 'FAST');
+      pdf.save(`Full_Pitch_Audit_${meta.client_name?.replace(/\s+/g, '_')}.pdf`);
+      
+    } catch (error) {
+      console.error("PDF Export Error:", error);
+    } finally {
+      setIsExporting(false);
+      setForceOpenAll(false);
+    }
+  };
+
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto py-10 px-4 font-['Inter']">
+      
+      {/* EXPORT BUTTON */}
+      <div className="fixed bottom-8 right-8 z-[100] export-hide">
+        <button
+          onClick={handleDownloadPDF}
+          disabled={isExporting}
+          className={`group flex items-center gap-2 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-2xl border-2 ${
+            isExporting ? 'bg-slate-900 text-white cursor-wait' : 'bg-white text-slate-900 hover:bg-slate-900 hover:text-white border-slate-900'
+          }`}
+        >
+          {isExporting ? <><Loader2 className="animate-spin" size={14} /> CAPTURING FINAL REPORT...</> : <><Download size={14} /> EXPORT FULL PDF</>}
+        </button>
+      </div>
 
-      {/* ═══ COVER HERO ═════════════════════════════════════════════════════ */}
-      <div className="bg-gradient-to-br from-[#0A0A0F] via-[#111128] to-[#1a0a2e] rounded-2xl overflow-hidden shadow-2xl">
-        {/* Top accent line */}
-        <div className="h-1 w-full bg-gradient-to-r from-[#FF6B35] via-[#FF6B35] to-[#6C63FF]" />
-        <div className="px-8 pt-8 pb-6 grid md:grid-cols-3 gap-6">
-          <div className="md:col-span-2">
-            <p className="text-[#FF6B35] font-bold text-xs uppercase tracking-widest mb-3">
-              CLIENT DIGITAL AUDIT REPORT
-            </p>
-            <h1 className="text-3xl md:text-4xl font-black text-white mb-3 leading-tight">
-              {meta.client_name || 'Prospective Client'}
-            </h1>
-            <p className="text-gray-400 text-sm mb-6 leading-relaxed">{s1.headline}</p>
-            <div className="flex flex-wrap gap-3 text-xs text-gray-400">
-              <span>📅 {meta.audit_date}</span>
-              <span>🏭 {meta.industry}</span>
-              <span>🏢 Prepared by Cubemoons Pvt. Ltd.</span>
-            </div>
-          </div>
-          <div className="flex flex-col justify-between gap-4">
-            {/* Maturity Score Card */}
-            <div className="bg-white/5 rounded-xl p-4 border border-white/10 text-center">
-              <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Digital Maturity</p>
-              <div className="text-5xl font-black text-[#FF6B35] leading-none mb-2">{s2.digital_maturity_score}</div>
-              <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-[#FF6B35] to-[#6C63FF] rounded-full"
-                  style={{ width: `${(parseInt(s2.digital_maturity_score) || 4) * 10}%` }}
-                />
+      <div ref={auditRef} className="audit-capture-container space-y-10 bg-slate-50 relative rounded-xl overflow-visible border border-slate-100 pb-20">
+        
+        {/* BLOBS */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-30">
+           <div className="absolute top-[-5%] right-[-5%] w-[300px] h-[300px] bg-indigo-100/50 rounded-full blur-[80px]" />
+           <div className="absolute bottom-[10%] left-[-5%] w-[250px] h-[250px] bg-orange-50/50 rounded-full blur-[60px]" />
+        </div>
+
+        {/* COVER */}
+        <div className="bg-[#0F172A] rounded-xl overflow-hidden shadow-2xl relative border-b-4 border-[#FF6B35]">
+          <div className="relative px-10 py-20">
+            <div className="max-w-2xl">
+              <div className="flex items-center gap-2 mb-10">
+                <div className="w-8 h-8 bg-[#FF6B35] rounded-lg flex items-center justify-center shadow-lg"><div className="w-3 h-3 bg-white rounded-sm rotate-45" /></div>
+                <div className="text-white font-bold text-base tracking-widest uppercase opacity-90">Cubemoons Strategy</div>
               </div>
-              <p className="text-xs text-gray-500 mt-1">out of 10</p>
-            </div>
-            {/* Action Buttons */}
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={() => window.print()}
-                className="w-full flex items-center justify-center gap-2 bg-[#FF6B35] hover:bg-orange-500 text-white px-6 py-4 rounded-xl font-bold transition-all shadow-lg shadow-orange-500/30 print:hidden"
-              >
-                <Zap size={20} />
-                Print Professional Audit (HQ PDF)
-              </button>
-              <p className="text-center text-xs text-gray-500 print:hidden">
-                Generated in {generation_time_seconds?.toFixed(1)}s • High-Fidelity A4 Print
-              </p>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[#FF6B35] text-[9px] font-black uppercase tracking-[0.3em] mb-8">Strategic Intelligence Report</div>
+              <h1 className="text-4xl lg:text-5xl font-black text-white mb-6 leading-tight tracking-tight border-l-4 border-[#FF6B35] pl-8">{meta.client_name || 'Client Audit'}</h1>
+              <p className="text-lg text-slate-400 font-medium leading-relaxed max-w-xl mb-12 opacity-90 italic">{s1.headline}</p>
+              <div className="grid grid-cols-3 gap-6 pt-10 border-t border-white/5">
+                 <div><p className="text-slate-500 font-black uppercase tracking-widest mb-1.5 text-[9px]">Sector</p><p className="text-white font-bold text-sm">{meta.industry}</p></div>
+                 <div><p className="text-slate-500 font-black uppercase tracking-widest mb-1.5 text-[9px]">Audit Date</p><p className="text-white font-bold text-sm">{meta.audit_date}</p></div>
+                 <div><p className="text-slate-500 font-black uppercase tracking-widest mb-1.5 text-[9px]">Verified</p><p className="text-[#FF6B35] font-black text-sm">Strategic</p></div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Metrics row */}
-        {s1.key_metrics?.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-4 border-t border-white/10">
-            {s1.key_metrics.slice(0, 4).map((m, i) => (
-              <div key={i} className="px-6 py-4 border-r border-white/10 last:border-r-0">
-                <div className="text-2xl font-black text-[#FF6B35]">{m.value}</div>
-                <div className="text-white text-xs font-semibold mt-0.5">{m.label}</div>
-                <div className="text-gray-500 text-xs">{m.context}</div>
+        {/* 01: EXECUTIVE SUMMARY */}
+        <div className="bg-white rounded-xl p-10 lg:p-12 border border-slate-200 shadow-sm relative overflow-hidden">
+           <div className="absolute top-0 left-0 w-1.5 h-full bg-[#FF6B35]" />
+           <div className="max-w-2xl space-y-6">
+              <div className="flex items-center gap-3">
+                 <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-[#FF6B35]"><Target size={18} /></div>
+                 <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Executive Summary</h2>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* ═══ EXECUTIVE SUMMARY ══════════════════════════════════════════════ */}
-      <div className="print-page-break bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Star size={18} className="text-[#FF6B35]" />
-          <h3 className="font-black text-brand-dark text-lg">Executive Summary</h3>
+              <blockquote className="text-2xl lg:text-3xl font-black text-slate-900 leading-tight">"{s1.headline}"</blockquote>
+              <p className="text-base text-slate-600 font-medium leading-relaxed italic">{s1.overview}</p>
+              <div className="grid grid-cols-4 gap-4 pt-8">
+                 {s1.key_metrics?.slice(0,4).map((m, i) => (
+                   <div key={i}>
+                      <div className="text-xl font-black text-slate-900">{m.value}</div>
+                      <div className="text-[8px] font-black text-[#FF6B35] uppercase tracking-widest">{m.label}</div>
+                   </div>
+                 ))}
+              </div>
+           </div>
         </div>
-        <blockquote className="border-l-4 border-[#FF6B35] pl-4 italic text-gray-700 text-base font-medium mb-4">
-          "{s1.headline}"
-        </blockquote>
-        <p className="text-gray-600 leading-relaxed">{s1.overview}</p>
-      </div>
 
-      {/* ═══ SECTIONS ════════════════════════════════════════════════════════ */}
-
-      {/* S2: Company Overview */}
-      <div className="print-page-break">
-        <Section id="02" icon={Users} title="Company Overview" accent="#3B82F6" defaultOpen>
-          <div className="grid md:grid-cols-2 gap-6 mt-4">
-            <div className="space-y-4">
-              <div>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">About</p>
-                <p className="text-gray-700 text-sm leading-relaxed">{s2.about}</p>
+        {/* SECTIONS 01-05 */}
+        <Section id="01" icon={Users} title="Company Overview & Maturity" accent="#4F46E5" forceOpen={forceOpenAll}>
+           <div className="grid lg:grid-cols-2 gap-8 py-2">
+              <div className="space-y-6">
+                 <div><h3 className="text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-3">Context</h3><p className="text-base font-bold text-slate-800 leading-relaxed">{s2.about}</p></div>
+                 <div className="p-6 bg-slate-50 rounded-xl border border-slate-100"><h3 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Revenue Model</h3><p className="text-sm font-semibold text-slate-600 leading-relaxed">{s2.business_model}</p></div>
               </div>
-              <div>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Business Model</p>
-                <p className="text-gray-700 text-sm leading-relaxed">{s2.business_model}</p>
+              <div className="space-y-6">
+                 <div className="bg-indigo-900 rounded-xl p-6 text-white shadow-xl relative">
+                    <div className="flex items-center justify-between mb-4">
+                       <h3 className="text-[9px] font-black text-indigo-300 uppercase tracking-widest">Digital Quotient</h3>
+                       <div className="text-3xl font-black text-[#FF6B35]">{s2.digital_maturity_score}<span className="text-xs text-indigo-500">/10</span></div>
+                    </div>
+                    <p className="text-xs font-bold text-indigo-50 italic leading-relaxed border-l-2 border-[#FF6B35] pl-4">{s2.maturity_assessment}</p>
+                 </div>
               </div>
-              <div>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Digital Footprint</p>
-                <p className="text-gray-700 text-sm leading-relaxed">{s2.current_digital_footprint}</p>
-              </div>
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Maturity Assessment</p>
-              <p className="text-gray-700 text-sm leading-relaxed">{s2.maturity_assessment}</p>
-            </div>
-          </div>
+           </div>
         </Section>
-      </div>
 
-      {/* S3: SWOT */}
-      <div className="print-page-break">
-        <Section id="03" icon={Shield} title="Current State — SWOT Analysis" accent="#8B5CF6" defaultOpen>
-          <div className="mt-4">
-            <div className="grid grid-cols-2 gap-3 mb-4">
+        <Section id="02" icon={Shield} title="Strategic Advantage Matrix" accent="#10B981" forceOpen={forceOpenAll}>
+           <div className="grid md:grid-cols-2 gap-4 py-2">
               {[
-                { key: 'strengths',    label: 'Strengths',     icon: <Icons.ShieldCheck size={16}/>, bg: 'bg-green-50',  border: 'border-green-200',  text: 'text-green-800' },
-                { key: 'weaknesses',   label: 'Weaknesses',    icon: <Icons.AlertTriangle size={16}/>,  bg: 'bg-red-50',    border: 'border-red-200',    text: 'text-red-800'   },
-                { key: 'opportunities',label: 'Opportunities', icon: <Icons.TrendingUp size={16}/>, bg: 'bg-blue-50',   border: 'border-blue-200',   text: 'text-blue-800'  },
-                { key: 'threats',      label: 'Threats',       icon: <Icons.ShieldAlert size={16}/>,  bg: 'bg-amber-50',  border: 'border-amber-200',  text: 'text-amber-800' },
-              ].map(({ key, label, icon, bg, border, text }) => (
-                <div key={key} className={`${bg} ${border} border rounded-xl p-4`}>
-                  <div className={`flex items-center gap-2 font-bold text-sm mb-2 ${text}`}>
-                    {icon} {label}
-                  </div>
-                  <ul className="space-y-1">
-                    {(s3[key] || []).map((item, i) => (
-                      <li key={i} className="flex items-start gap-1.5 text-xs text-gray-700">
-                        <span className="mt-0.5 flex-shrink-0">•</span>{item}
-                      </li>
-                    ))}
-                  </ul>
+                { key: 'strengths',    label: 'Strengths',     color: '#059669', bg: '#F0FDF4' },
+                { key: 'weaknesses',   label: 'Weaknesses',    color: '#DC2626', bg: '#FEF2F2' },
+                { key: 'opportunities',label: 'Opportunities', color: '#2563EB', bg: '#EFF6FF' },
+                { key: 'threats',      label: 'Threats',       color: '#D97706', bg: '#FFFBEB' },
+              ].map(({ key, label, color, bg }) => (
+                <div key={key} className="p-6 border border-slate-100 rounded-xl shadow-sm" style={{ backgroundColor: bg }}>
+                   <div className="flex items-center gap-2 mb-4">
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
+                      <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{label}</h4>
+                   </div>
+                   <ul className="space-y-2">
+                     {(s3[key] || []).map((item, i) => ( <li key={i} className="flex items-start gap-2 text-xs font-bold text-slate-700 leading-tight"><CheckCircle2 size={12} className="mt-0.5 flex-shrink-0" style={{ color: color }} /> {item}</li> ))}
+                   </ul>
                 </div>
               ))}
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 text-sm text-gray-600 italic">
-              {s3.swot_narrative}
-            </div>
-          </div>
+           </div>
         </Section>
-      </div>
 
-      {/* S4: Problems */}
-      <div className="print-page-break">
-        <Section id="04" icon={AlertTriangle} title="Problem Identification" accent="#EF4444" defaultOpen>
-          <div className="space-y-4 mt-4">
-            <p className="text-sm text-gray-600 italic">{s4.problem_summary}</p>
-            {(s4.primary_problems || []).map((p, i) => {
-              const cfg = priorityConfig[p.priority] || priorityConfig.Medium;
-              const { Icon: PIcon } = cfg;
-              return (
-                <div key={i} className="rounded-xl border overflow-hidden" style={{ borderColor: cfg.color + '40' }}>
-                  <div className="flex items-center justify-between px-4 py-3" style={{ backgroundColor: cfg.color + '12' }}>
-                    <div className="flex items-center gap-2">
-                      <PIcon size={16} style={{ color: cfg.color }} />
-                      <span className="font-bold text-brand-dark text-sm">{p.problem_title}</span>
-                    </div>
-                    <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ color: cfg.color, backgroundColor: cfg.color + '20' }}>
-                      {p.priority}
-                    </span>
-                  </div>
-                  <div className="px-4 py-3 bg-white">
-                    <p className="text-sm text-gray-600 mb-3">{p.description}</p>
-                    <div className="grid md:grid-cols-2 gap-3 text-xs text-gray-500 bg-gray-50 rounded-lg p-3">
-                      <div><strong className="text-gray-700">Business Impact:</strong> {p.business_impact}</div>
-                      <div><strong className="text-gray-700">Root Cause:</strong> {p.root_cause}</div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+        <Section id="03" icon={AlertTriangle} title="Friction Point Analysis" accent="#EF4444" forceOpen={forceOpenAll}>
+           <div className="space-y-4 py-2">
+              <p className="text-sm font-bold text-slate-500 leading-relaxed italic bg-slate-50 p-4 rounded-xl border-l-2 border-slate-200">{s4.problem_summary}</p>
+              {(s4.primary_problems || []).map((p, i) => {
+                 const cfg = priorityConfig[p.priority] || priorityConfig.Medium;
+                 return (
+                   <div key={i} className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                      <div className="flex justify-between items-center mb-4">
+                         <div className="flex items-center gap-3"><span className="text-[10px] font-black text-slate-300">0{i+1}</span><h4 className="text-base font-black text-slate-900 tracking-tight">{p.problem_title}</h4></div>
+                         <div className="px-2 py-0.5 rounded-full text-[8px] font-black tracking-widest uppercase text-white shadow-md" style={{ backgroundColor: cfg.color }}>{p.priority} RISK</div>
+                      </div>
+                      <p className="text-sm font-bold text-slate-600 mb-6 leading-relaxed">{p.description}</p>
+                      <div className="grid md:grid-cols-2 gap-4 pt-4 border-t border-slate-50 text-[9px]">
+                         <div className="bg-slate-50 p-3 rounded-lg"><p className="text-slate-400 font-black uppercase mb-1">Impact</p><p className="text-slate-900 font-black">{p.business_impact}</p></div>
+                         <div className="bg-slate-50 p-3 rounded-lg"><p className="text-slate-400 font-black uppercase mb-1">Root Cause</p><p className="text-slate-900 font-black">{p.root_cause}</p></div>
+                      </div>
+                   </div>
+                 );
+              })}
+           </div>
         </Section>
-      </div>
 
-      {/* S5: Proposed Solution */}
-      <div className="print-page-break">
-        <Section id="05" icon={Zap} title="Proposed Solution" accent="#FF6B35" defaultOpen>
-          <div className="mt-4 space-y-4">
-            <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
-              <p className="text-orange-900 font-semibold text-sm">{s5.solution_overview}</p>
-            </div>
-            <div className="grid md:grid-cols-2 gap-4">
-              {(s5.solution_components || []).map((c, i) => (
-                <div key={i} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                  <div className="flex items-center justify-between px-4 py-3 bg-brand-dark">
-                    <span className="text-white font-bold text-sm">{c.component_name}</span>
-                    <span className="bg-[#FF6B35] text-white text-xs font-bold px-2 py-0.5 rounded-full">{c.cubemoons_service}</span>
-                  </div>
-                  <div className="p-4">
-                    <p className="text-gray-600 text-sm mb-3">{c.what_we_build}</p>
-                    <div className="flex flex-wrap gap-2 text-xs">
-                      <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-1 rounded-lg">Tech: {c.technology}</span>
-                      <span className="bg-purple-50 text-purple-700 border border-purple-200 px-2 py-1 rounded-lg">Solves: {c.solves_problem}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 italic text-sm text-gray-600">
-              {s5.why_this_approach}
-            </div>
-          </div>
-        </Section>
-      </div>
-
-      {/* S6: Why This Works */}
-      <div className="print-page-break">
-        <Section id="06" icon={TrendingUp} title="Why This Solution Works" accent="#10B981">
-          <div className="mt-4 space-y-3">
-            {(s6.data_points || []).map((dp, i) => (
-              <div key={i} className="flex gap-4 bg-gray-50 border border-gray-100 rounded-xl overflow-hidden">
-                <div className="bg-green-50 border-r border-gray-200 px-4 py-3 flex items-center w-2/5">
-                  <p className="text-sm font-semibold text-green-900">{dp.claim}</p>
-                </div>
-                <div className="px-4 py-3 w-3/5 flex items-center">
-                  <p className="text-sm text-gray-600">{dp.evidence}</p>
-                </div>
+        <Section id="04" icon={Zap} title="Engineering Blueprint" accent="#F59E0B" forceOpen={forceOpenAll}>
+           <div className="py-2 space-y-6">
+              <div className="bg-slate-900 rounded-xl p-8 text-white relative shadow-xl">
+                 <h3 className="text-[8px] font-black text-[#FF6B35] uppercase tracking-[0.4em] mb-4">Core Intervention</h3>
+                 <p className="text-xl font-black leading-snug">{s5.solution_overview}</p>
               </div>
-            ))}
-            <div className="grid md:grid-cols-2 gap-3 mt-4">
-              <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2">Industry Benchmarks</p>
-                <p className="text-sm text-gray-700">{s6.industry_benchmarks}</p>
+              <div className="grid lg:grid-cols-2 gap-4">
+                 {(s5.solution_components || []).map((c, i) => (
+                   <div key={i} className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm flex flex-col justify-between">
+                      <div>
+                         <div className="flex justify-between items-start mb-4"><h4 className="text-sm font-black text-slate-900">{c.component_name}</h4><span className="text-[8px] font-black tracking-widest uppercase bg-orange-50 text-[#FF6B35] px-2 py-0.5 rounded-md">{c.cubemoons_service}</span></div>
+                         <p className="text-xs font-bold text-slate-600 mb-6 leading-relaxed italic border-l border-slate-100 pl-3">{c.what_we_build}</p>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-3 text-[8px] font-black text-slate-400 tracking-widest pt-4 border-t border-slate-50"><span>CPU: {c.technology}</span><span className="text-green-600">ROI: {c.solves_problem}</span></div>
+                   </div>
+                 ))}
               </div>
-              <div className="bg-purple-50 border border-purple-100 rounded-xl p-4">
-                <p className="text-xs font-bold text-purple-600 uppercase tracking-wider mb-2">Risk Mitigation</p>
-                <p className="text-sm text-gray-700">{s6.risk_mitigation}</p>
+           </div>
+        </Section>
+
+        <Section id="05" icon={Clock} title="Deployment Roadmap" accent="#06B6D4" forceOpen={forceOpenAll}>
+           <div className="py-2 space-y-8">
+              <div className="grid grid-cols-2 gap-4 bg-slate-900 rounded-xl p-6 text-white shadow-lg">
+                 <div><p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Timeline</p><p className="text-xl font-black text-white">{s7.total_timeline}</p></div>
+                 <div className="border-l border-slate-800 pl-6"><p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Delivery</p><p className="text-xl font-black text-white">{s7.delivery_model}</p></div>
               </div>
-            </div>
-          </div>
-        </Section>
-      </div>
-
-      {/* S7: Roadmap */}
-      <div className="print-page-break">
-        <Section id="07" icon={Clock} title="Implementation Roadmap" accent="#F59E0B">
-          <div className="mt-4">
-            <div className="flex gap-4 bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 text-sm">
-              <span>⏱ Total: <strong>{s7.total_timeline}</strong></span>
-              <span>📦 Model: <strong>{s7.delivery_model}</strong></span>
-            </div>
-            <div className="relative pl-6 border-l-2 border-gray-200 space-y-6">
-              {(s7.phases || []).map((ph, i) => (
-                <div key={i} className="relative">
-                  <div className="absolute -left-8 top-0 w-5 h-5 rounded-full bg-[#FF6B35] border-4 border-white shadow" />
-                  <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span className="text-xs font-black text-[#FF6B35] uppercase tracking-wider">Phase {ph.phase_number}</span>
-                      <h4 className="font-bold text-brand-dark">{ph.phase_name}</h4>
-                      <span className="ml-auto text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">Duration: {ph.duration}</span>
-                    </div>
-                    <ul className="text-sm text-gray-600 space-y-1 mb-3">
-                      {(ph.deliverables || []).map((d, di) => (
-                        <li key={di} className="flex items-start gap-2">
-                          <CheckCircle2 size={14} className="text-green-500 mt-0.5 flex-shrink-0" />{d}
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="inline-flex items-center gap-1 text-xs font-semibold text-green-700 bg-green-50 border border-green-200 px-2 py-1 rounded-lg">
-                      Milestone: {ph.milestone}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Section>
-      </div>
-
-      {/* S8: ROI */}
-      <div className="print-page-break">
-        <Section id="08" icon={TrendingUp} title="ROI & Expected Impact" accent="#10B981" defaultOpen>
-          <div className="mt-4">
-            <p className="text-sm text-gray-600 italic mb-5">{s8.roi_narrative}</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {(s8.expected_outcomes || []).map((o, i) => (
-                <div key={i} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm text-center">
-                  <p className="font-bold text-brand-dark text-sm mb-1">{o.outcome}</p>
-                  <p className="text-xs text-gray-500 mb-3">{o.metric}</p>
-                  <div className="flex items-center justify-center gap-1 mb-2">
-                    <span className="text-gray-400 text-sm">{o.conservative_estimate}</span>
-                    <ArrowRight size={14} className="text-gray-300" />
-                    <span className="text-green-600 font-black text-lg">{o.optimistic_estimate}</span>
-                  </div>
-                  <span className="text-xs bg-gray-50 border border-gray-100 px-2 py-0.5 rounded-full text-gray-500">Timeline: {o.timeframe}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Section>
-      </div>
-
-      {/* S9: Why Cubemoons */}
-      <div className="print-page-break">
-        <Section id="09" icon={Star} title="Why Cubemoons" accent="#6C63FF">
-          <div className="mt-4 space-y-4">
-            <div className="grid md:grid-cols-2 gap-3">
-              {(s9.differentiators || []).map((d, i) => (
-                <div key={i} className="bg-purple-50 border border-purple-100 rounded-xl p-4">
-                  <p className="font-bold text-purple-900 text-sm mb-1">{d.title}</p>
-                  <p className="text-gray-600 text-sm">{d.description}</p>
-                </div>
-              ))}
-            </div>
-            <div className="grid md:grid-cols-2 gap-3">
-              <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Relevant Experience</p>
-                <p className="text-sm text-gray-700">{s9.relevant_experience}</p>
+              <div className="space-y-6 relative">
+                 <div className="absolute left-[24px] top-4 bottom-4 w-0.5 bg-slate-100" />
+                 {(s7.phases || []).map((ph, i) => (
+                   <div key={i} className="flex gap-6 items-start">
+                      <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 shadow-md flex items-center justify-center font-black text-sm text-slate-900 z-10 flex-shrink-0">0{ph.phase_number}</div>
+                      <div className="flex-1 bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
+                         <div className="flex justify-between items-center mb-6 border-b border-slate-50 pb-4">
+                            <h4 className="text-lg font-black text-slate-900 tracking-tight">{ph.phase_name}</h4>
+                            <div className="px-2 py-0.5 bg-cyan-50 text-cyan-600 rounded-md text-[8px] font-black tracking-widest border border-cyan-100">{ph.duration}</div>
+                         </div>
+                         <ul className="grid md:grid-cols-2 gap-3 mb-6">
+                           {(ph.deliverables || []).map((d, di) => ( <li key={di} className="flex items-center gap-3 text-xs font-bold text-slate-600 bg-slate-50/50 p-2.5 rounded"><CheckCircle2 size={12} className="text-[#FF6B35]" /> {d}</li> ))}
+                         </ul>
+                         <div className="p-3 bg-green-50 rounded-lg border border-green-100 flex items-center gap-3 text-green-700 font-black tracking-tight text-[9px] uppercase"><Icons.Rocket size={14} /> MILESTONE: {ph.milestone}</div>
+                      </div>
+                   </div>
+                 ))}
               </div>
-              <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Process Advantage</p>
-                <p className="text-sm text-gray-700">{s9.process_advantage}</p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {(s9.proven_products || []).map((p, i) => (
-                <span key={i} className="bg-brand-dark text-white px-3 py-1.5 rounded-full text-sm font-semibold">{p}</span>
-              ))}
-            </div>
-          </div>
+           </div>
         </Section>
-      </div>
 
-      {/* FLOWCHART */}
-      <div className="print-page-break">
-        <div className="page-break-after">
-          <div className="flex items-center gap-2 mb-3 px-1">
-            <div className="w-8 h-8 rounded-lg bg-[#FF6B35] flex items-center justify-center font-black text-white text-sm">
-              <Icons.Cpu size={18}/>
-            </div>
-            <h3 className="font-black text-brand-dark text-lg">Proposed System Architecture</h3>
-          </div>
-          <VisualFlowchart data={flowchart_data} />
+        {/* FLOWCHART */}
+        <div className="bg-white rounded-xl p-8 border border-slate-200 shadow-xl overflow-visible relative min-h-[400px]">
+           <div className="flex items-center gap-4 mb-8 border-b border-slate-50 pb-4">
+              <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400"><Icons.Code2 size={20} /></div>
+              <h3 className="text-xl font-black text-slate-900 tracking-tight">System Architecture</h3>
+           </div>
+           <div className="rounded-lg border border-slate-50 bg-slate-50/50 p-6 overflow-visible">
+              <VisualFlowchart data={flowchart_data} />
+           </div>
         </div>
+
+        {/* CTA FOOTER */}
+        <div className="bg-[#0A0A0F] rounded-xl overflow-visible shadow-2xl relative">
+           <div className="absolute top-0 left-0 w-full h-[4px] bg-[#FF6B35]" />
+           <div className="relative px-10 py-16 text-center">
+              <p className="text-[#FF6B35] font-black text-[9px] uppercase tracking-[0.4em] mb-10">Strategic Activation</p>
+              <h2 className="text-3xl lg:text-4xl font-black text-white mb-8 tracking-tight">{s10.cta_headline}</h2>
+              <p className="text-base text-slate-500 font-medium max-w-2xl mx-auto mb-12 italic opacity-80">{s10.recommended_next_step}</p>
+              
+              {s10.offer && (
+                <div className="inline-block px-10 py-3 bg-white text-slate-950 font-black text-lg rounded-lg mb-16 shadow-2xl uppercase tracking-tight">
+                   {s10.offer}
+                </div>
+              )}
+
+              <div className="grid grid-cols-4 gap-4 pt-12 border-t border-white/5">
+                {[
+                  { icon: <Phone size={14}/>, label: 'VOICE', val: s10.contact?.phone },
+                  { icon: <Mail size={14}/>, label: 'EMAIL', val: s10.contact?.email },
+                  { icon: <Globe size={14}/>, label: 'WEB', val: s10.contact?.website },
+                  { icon: <Calendar size={14}/>, label: 'MEET', val: s10.contact?.calendar_link },
+                ].map((c, i) => (
+                  <div key={i} className="text-center group cursor-pointer">
+                     <div className="text-slate-600 mb-3 flex justify-center group-hover:text-[#FF6B35] transition-colors">{c.icon}</div>
+                     <p className="text-slate-500 text-[8px] font-black tracking-widest mb-1 uppercase">{c.label}</p>
+                     <p className="text-white font-bold text-[9px] break-all opacity-60">{c.val}</p>
+                  </div>
+                ))}
+              </div>
+           </div>
+        </div>
+
       </div>
 
-      {/* S10: Next Steps CTA */}
-      <div className="print-page-break">
-        <div className="bg-gradient-to-br from-[#0A0A0F] via-[#111128] to-[#1a0a2e] rounded-2xl overflow-hidden shadow-2xl">
-          <div className="h-1 w-full bg-gradient-to-r from-[#FF6B35] to-[#6C63FF]" />
-          <div className="p-8">
-            <p className="text-[#FF6B35] font-bold text-xs uppercase tracking-widest mb-2">10 — Next Steps</p>
-            <h2 className="text-3xl font-black text-white mb-2">{s10.cta_headline}</h2>
-            <p className="text-gray-400 mb-6">{s10.recommended_next_step}</p>
-
-            {s10.offer && (
-              <div className="inline-block bg-[#FF6B35]/20 border border-[#FF6B35]/40 text-[#FF6B35] font-semibold px-4 py-2 rounded-xl text-sm mb-6">
-                Exclusive: {s10.offer}
-              </div>
-            )}
-
-            {s10.meeting_agenda_suggestion?.length > 0 && (
-              <div className="mb-6">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Suggested Meeting Agenda</p>
-                <div className="space-y-2">
-                  {s10.meeting_agenda_suggestion.map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 text-gray-300 text-sm">
-                      <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">{i + 1}</span>
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="grid md:grid-cols-4 gap-3 border-t border-white/10 pt-6">
-              {[
-                { icon: <Icons.Phone size={20}/>, label: 'Phone', val: s10.contact?.phone },
-                { icon: <Icons.Mail size={20}/>, label: 'Email', val: s10.contact?.email },
-                { icon: <Icons.Globe size={20}/>, label: 'Website', val: s10.contact?.website },
-                { icon: <Icons.Calendar size={20}/>, label: 'Book Call', val: s10.contact?.calendar_link },
-              ].map((c, i) => (
-                <div key={i} className="bg-white/5 rounded-xl p-3 text-center border border-white/10 flex flex-col items-center">
-                  <div className="text-[#FF6B35] mb-2">{c.icon}</div>
-                  <div className="text-gray-400 text-xs mb-0.5">{c.label}</div>
-                  <div className="text-white text-xs font-medium break-all">{c.val}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+      <div className="py-12 text-center text-[9px] font-black text-slate-400 uppercase tracking-[0.6em] export-hide">
+        Cubemoons Intelligence • Strategy Excellence • 2026
       </div>
     </div>
   );

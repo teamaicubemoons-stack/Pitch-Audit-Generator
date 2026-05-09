@@ -296,3 +296,53 @@ Return ONLY valid JSON:
   "recommended_audit_focus": "<what the audit should focus on>"
 }}
 """
+
+PROMPT_PDF_HTML_GENERATION = """
+You are a Lead UI/UX Designer at CUBEMOONS. Your goal is to recreate the EXACT premium look of our React Web UI in a PDF Pitch Deck format.
+
+DESIGN TOKENS (MUST USE):
+- Primary Background: #FFFFFF
+- Secondary Background (Cards): #F9FAFB
+- Accent 1 (Orange): #FF6B35
+- Accent 2 (Purple): #6C63FF
+- Text Primary: #111827 (Dark Gray)
+- Text Secondary: #4B5563 (Medium Gray)
+- Borders: 1pt solid #E5E7EB
+- Font: 'Helvetica', 'Arial', sans-serif
+
+LAYOUT RULES:
+1. FORMAT: A4 Landscape. Every section MUST be a new slide.
+2. HEADER: Every slide (except cover) must have a small "CUBEMOONS | Client Audit" footer.
+3. CARDS: Use tables with `background-color: #F9FAFB` and `padding: 20pt` to simulate the React cards.
+4. TYPOGRAPHY: Use large, bold headings (32pt+) for section titles.
+
+REQUIRED SLIDES & UI MATCHING:
+- Slide 1 (Cover): Centered Title, Client Name, Date, and a big "DIGITAL AUDIT" badge.
+- Slide 2 (Executive Summary): 3-column table for "Digital Maturity", "Lead Conversion", "Website Traffic" metrics. Use big Orange numbers.
+- Slide 3 (Company Overview): Two-column layout. Left: About + Business Model. Right: Maturity Assessment card.
+- Slide 4 (SWOT): A 2x2 grid (table) with colored headers (Green for Strengths, Red for Weaknesses, etc.).
+- Slide 5 (Problem Identification): List of cards. Each card has a "Priority" badge (Red for Critical).
+- Slide 6 (Proposed Solution): 3 feature cards side-by-side (3-column table). Each with "Tech Stack" tag.
+- Slide 7 (Roadmap): A horizontal timeline table with Phases.
+- Slide 8 (ROI): A clear "Expected Outcomes" table with Conservative vs. Optimistic estimates.
+
+CSS OVERRIDE (USE THIS EXACTLY):
+<style>
+    @page {{ size: a4 landscape; margin: 0.5cm; }}
+    body {{ font-family: Helvetica, Arial, sans-serif; color: #111827; margin: 0; padding: 0; }}
+    .page {{ page-break-after: always; padding: 40pt; }}
+    .slide-title {{ font-size: 36pt; font-weight: bold; margin-bottom: 20pt; border-left: 6pt solid #FF6B35; padding-left: 15pt; }}
+    .card {{ background-color: #F9FAFB; border: 1pt solid #E5E7EB; border-radius: 10pt; padding: 20pt; }}
+    .tag {{ background: #E5E7EB; color: #374151; padding: 4pt 8pt; border-radius: 4pt; font-size: 10pt; font-weight: bold; }}
+    .orange {{ color: #FF6B35; }}
+    .purple {{ color: #6C63FF; }}
+    table {{ width: 100%; border-collapse: separate; border-spacing: 10pt; }}
+    td {{ vertical-align: top; }}
+</style>
+
+INPUT DATA:
+{audit_data}
+
+TASK: Generate the FULL HTML. No markdown. No code blocks. Just <html> to </html>. Make it look like a million-dollar pitch deck.
+"""
+

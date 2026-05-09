@@ -1,170 +1,174 @@
 /* 
-   Cubemoons Audit Generator — Professional PDF Styles 
-   Optimized for xhtml2pdf (Pure Python)
-   STRICT RULE: Use tables for layout. No flexbox/grid.
+   Cubemoons Audit Generator — Enterprise Flowing PDF Styles
+   Optimized for: Puppeteer Rendering (A4 Landscape)
 */
 
 @page {
-    size: a4;
-    margin: 0;
-    @frame content_frame {
-        left: 15mm;
-        top: 15mm;
-        width: 180mm;
-        height: 260mm;
-    }
-    @frame footer_frame {
-        -pdf-frame-content: footer_content;
-        left: 15mm;
-        bottom: 5mm;
-        width: 180mm;
-        height: 10mm;
-    }
+    size: a4 landscape;
+    margin: 15mm;
 }
 
 body {
-    font-family: Helvetica, Arial, sans-serif;
-    color: #1F2937;
-    font-size: 10pt;
-    line-height: 1.4;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    color: #374151;
+    font-size: 11pt;
+    line-height: 1.5;
+    background-color: #FFFFFF;
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
 }
 
-h1, h2, h3, h4 { color: #0A0A0F; margin-bottom: 5pt; }
-
-.page-break { page-break-after: always; }
+h1, h2, h3, h4 { 
+    color: #111827; 
+    margin-bottom: 15pt; 
+    font-weight: bold; 
+    break-after: avoid; 
+}
 
 /* ═══════════════════════════════════════════════════════ COVER PAGE */
 .cover-wrapper {
-    background-color: #0A0A0F;
-    color: white;
-    height: 100%;
-}
-
-.cover-header {
-    background-color: #FF6B35;
-    height: 4pt;
-}
-
-.cover-body {
+    min-height: 180mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     padding: 40pt;
+    border-top: 10pt solid #FF6B35;
+    margin-bottom: 50pt;
 }
 
 .cover-logo {
     font-size: 24pt;
-    font-weight: bold;
+    font-weight: 800;
     letter-spacing: 2pt;
-    margin-bottom: 80pt;
+    margin-bottom: 60pt;
+    color: #111827;
 }
 
 .cover-label {
     color: #FF6B35;
-    font-size: 10pt;
-    font-weight: bold;
-    letter-spacing: 3pt;
-    margin-bottom: 10pt;
+    font-size: 12pt;
+    font-weight: 800;
+    letter-spacing: 2pt;
+    margin-bottom: 15pt;
 }
 
 .cover-title {
-    font-size: 42pt;
-    font-weight: bold;
+    font-size: 48pt;
+    font-weight: 900;
     line-height: 1.1;
-    margin-bottom: 20pt;
+    margin-bottom: 25pt;
+    color: #111827;
 }
 
 .cover-headline {
-    color: #9CA3AF;
-    font-size: 14pt;
+    color: #6B7280;
+    font-size: 18pt;
     margin-bottom: 60pt;
+    max-width: 80%;
 }
 
-.meta-table { width: 100%; margin-top: 40pt; border-top: 0.5pt solid #374151; padding-top: 20pt; }
-.meta-label { color: #6B7280; font-size: 8pt; text-transform: uppercase; }
-.meta-value { color: white; font-weight: bold; font-size: 12pt; padding-top: 5pt; }
+.meta-grid {
+    display: flex;
+    gap: 40pt;
+    border-top: 1pt solid #E5E7EB;
+    padding-top: 25pt;
+}
 
-/* ═══════════════════════════════════════════════════════ COMMON ELEMENTS */
+.meta-item { flex: 1; }
+.meta-label { color: #6B7280; font-size: 10pt; text-transform: uppercase; font-weight: bold; }
+.meta-value { color: #111827; font-weight: 800; font-size: 16pt; margin-top: 5pt; }
+
+/* ═══════════════════════════════════════════════════════ SECTIONS */
+.section {
+    margin-bottom: 50pt;
+    break-inside: auto;
+}
+
 .section-tag {
-    background-color: #0A0A0F;
-    color: white;
-    display: inline-block;
-    padding: 3pt 8pt;
-    font-weight: bold;
-    font-size: 9pt;
+    color: #FF6B35;
+    font-weight: 800;
+    font-size: 11pt;
+    letter-spacing: 2pt;
     margin-bottom: 10pt;
-}
-
-.headline-block {
-    border-left: 3pt solid #FF6B35;
-    padding: 10pt 15pt;
-    font-style: italic;
-    font-size: 14pt;
-    background-color: #F9FAFB;
-    margin: 20pt 0;
+    text-transform: uppercase;
 }
 
 .section-header {
-    font-size: 24pt;
-    font-weight: bold;
-    color: #0A0A0F;
-    margin-bottom: 20pt;
-    border-bottom: 1pt solid #E5E7EB;
-    padding-bottom: 5pt;
+    font-size: 32pt;
+    font-weight: 900;
+    color: #111827;
+    margin-bottom: 30pt;
+    border-bottom: 3pt solid #FF6B35;
+    padding-bottom: 12pt;
 }
 
-/* ═══════════════════════════════════════════════════════ GRIDS VIA TABLES */
-.layout-table { width: 100%; border-spacing: 10pt; }
-.layout-cell { vertical-align: top; }
+.headline-block {
+    background-color: #F9FAFB;
+    border-left: 5pt solid #6C63FF;
+    padding: 20pt 30pt;
+    font-style: italic;
+    font-size: 18pt;
+    margin: 30pt 0;
+    color: #111827;
+    border-radius: 0 12pt 12pt 0;
+}
+
+/* ═══════════════════════════════════════════════════════ COMPONENTS */
+.card-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20pt;
+    margin-top: 20pt;
+}
 
 .card {
-    border: 0.5pt solid #E5E7EB;
-    padding: 12pt;
     background-color: #FFFFFF;
+    border: 1pt solid #E5E7EB;
+    border-radius: 16pt;
+    padding: 20pt;
+    break-inside: avoid;
+    margin-bottom: 20pt;
 }
 
 .metric-card {
     background-color: #F3F4F6;
-    padding: 15pt;
+    padding: 25pt;
+    border-radius: 20pt;
     text-align: center;
+    flex: 1;
+    min-width: 200pt;
+    break-inside: avoid;
 }
-.metric-val { font-size: 20pt; font-weight: bold; color: #FF6B35; }
-.metric-lab { font-size: 9pt; font-weight: bold; }
+.metric-val { font-size: 36pt; font-weight: 900; color: #6C63FF; }
+.metric-lab { font-size: 12pt; font-weight: 800; color: #4B5563; margin-top: 8pt; }
 
-/* SWOT */
-.swot-table { width: 100%; border-collapse: collapse; }
-.swot-cell { width: 50%; padding: 15pt; border: 1pt solid #E5E7EB; vertical-align: top; height: 120pt; }
-.swot-s { background-color: #ECFDF5; }
-.swot-w { background-color: #FEF2F2; }
-.swot-o { background-color: #EFF6FF; }
-.swot-t { background-color: #FFFBEB; }
-.swot-title { font-weight: bold; font-size: 12pt; margin-bottom: 8pt; }
-
-/* PROBLEM CARDS */
-.problem-card {
-    margin-bottom: 15pt;
-    border-left: 4pt solid #3B82F6;
-    padding: 12pt;
+.swot-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15pt;
+}
+.swot-item {
+    flex: 1;
+    min-width: 45%;
+    padding: 20pt;
+    border-radius: 16pt;
+    border: 1pt solid #E5E7EB;
     background-color: #F9FAFB;
+    break-inside: avoid;
 }
-.problem-title { font-weight: bold; font-size: 13pt; color: #0A0A0F; }
-.priority-tag { font-size: 8pt; font-weight: bold; padding: 2pt 5pt; background: #E5E7EB; border-radius: 3pt; }
+.swot-title { font-weight: 800; font-size: 14pt; margin-bottom: 12pt; display: flex; align-items: center; gap: 8pt; }
 
-/* ROADMAP */
-.phase-card {
-    border-left: 2pt solid #FF6B35;
-    padding: 10pt 15pt;
-    background-color: #FDF2F0;
-    margin-bottom: 10pt;
+.problem-card {
+    border-left: 6pt solid #3B82F6;
+    padding: 20pt;
+    background-color: #F9FAFB;
+    border-radius: 0 16pt 16pt 0;
+    margin-bottom: 25pt;
+    break-inside: avoid;
 }
 
-/* FLOWCHART STEPS */
-.flow-step-table { width: 100%; margin-bottom: 10pt; border-collapse: collapse; }
-.flow-step-header { padding: 8pt 12pt; color: white; font-weight: bold; }
-.flow-step-body { padding: 12pt; border: 1pt solid #E5E7EB; border-top: none; }
-
-/* FOOTER */
-#footer_content {
-    font-size: 8pt;
-    color: #9CA3AF;
-    text-align: center;
-    border-top: 0.5pt solid #E5E7EB;
-    padding-top: 5pt;
-}
+/* ═══════════════════════════════════════════════════════ HELPERS */
+.page-break { break-before: page; }
+ul { padding-left: 20pt; }
+li { margin-bottom: 8pt; }

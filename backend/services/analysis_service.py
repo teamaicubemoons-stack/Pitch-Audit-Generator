@@ -18,6 +18,7 @@ from prompts.audit_prompts import (
     PROMPT_AUDIT_GENERATION,
     PROMPT_FLOWCHART_GENERATION,
     PROMPT_INDUSTRY_INFERENCE,
+    PROMPT_PDF_HTML_GENERATION,
 )
 
 load_dotenv()
@@ -158,3 +159,12 @@ def has_system_solution(audit_content: dict) -> bool:
     s5 = audit_content.get("section_5_proposed_solution", {})
     components = s5.get("solution_components", [])
     return len(components) >= 2
+
+
+async def generate_pdf_html(audit_data: dict) -> str:
+    """Uses the 'PDF AI' to generate a faithful HTML representation for the PDF."""
+    prompt = PROMPT_PDF_HTML_GENERATION.format(
+        audit_data=json.dumps(audit_data, indent=2, ensure_ascii=False)
+    )
+    # Use higher tokens for the full HTML document
+    return await _call_gpt(prompt, max_tokens=4000)

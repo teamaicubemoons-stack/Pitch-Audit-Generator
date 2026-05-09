@@ -87,7 +87,7 @@ async def generate_audit(inp: AuditFormInput):
     # ── STEP 6: PDF Generation ────────────────────────────────────
     logger.info("[STEP 6] Generating PDF...")
     try:
-        pdf_path = pdf_service.generate_pdf(audit_content, flowchart_data)
+        pdf_path = await pdf_service.generate_pdf(audit_content, flowchart_data)
         pdf_filename = Path(pdf_path).name
         pdf_url = f"/api/download-pdf/{pdf_filename}"
     except Exception as e:
@@ -129,3 +129,24 @@ async def download_pdf(filename: str):
         )
     else:
         raise HTTPException(status_code=400, detail="Unsupported file type")
+
+
+@router.post("/generate-professional-pdf")
+async def generate_professional_pdf(audit_data: dict):
+    """
+    On-demand AI-driven PDF generation. 
+    Triggers a second AI call to create a perfect duplicate of the UI in PDF form.
+    """
+    logger.info("[PDF-AI] Triggered professional PDF generation step...")
+    try:
+        # Step 1: AI generates the HTML layout
+        ai_html = await analysis_service.generate_pdf_html(audit_data)
+        
+        # Step 2: Convert that AI-HTML to PDF
+        pdf_path = await pdf_service.convert_raw_html_to_pdf(ai_html)
+        
+        filename = Path(pdf_path).name
+        return {"pdf_url": f"/api/download-pdf/{filename}"}
+    except Exception as e:
+        logger.error(f"Professional PDF generation failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

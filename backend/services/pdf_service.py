@@ -1,20 +1,14 @@
 """
-PDF Service — Generates professional audit PDFs using WeasyPrint + Jinja2.
+PDF Service — High-fidelity enterprise PDF generation using Pyppeteer (Chromium).
 """
 
 import os
 import logging
+import asyncio
 from uuid import uuid4
 from pathlib import Path
 import jinja2
-
-load_dotenv_done = False
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-    load_dotenv_done = True
-except ImportError:
-    pass
+from pyppeteer import launch
 
 logger = logging.getLogger(__name__)
 
@@ -32,64 +26,91 @@ def _get_jinja_env() -> jinja2.Environment:
     )
 
 
-def generate_pdf(audit_data: dict, flowchart_data: dict = None) -> str:
+async def generate_pdf(audit_data: dict, flowchart_data: dict = None) -> str:
     """
-    1. Render HTML from Jinja2 template
-    2. Convert to PDF (try xhtml2pdf first for Windows stability, then WeasyPrint)
-    3. Save to PDF_OUTPUT_DIR
+    Renders audit data using Puppeteer for pixel-perfect PDF parity.
     """
     env = _get_jinja_env()
     template = env.get_template("audit_template.html")
 
-    # Read CSS content (Prefer pdf_style.css for xhtml2pdf, fallback to audit_style.css)
-    pdf_css_path = TEMPLATES_DIR / "pdf_style.css"
-    audit_css_path = TEMPLATES_DIR / "audit_style.css"
-    
+    # Read the synchronized flowing CSS
+    css_path = TEMPLATES_DIR / "pdf_style.css"
     css_content = ""
-    target_css = pdf_css_path if pdf_css_path.exists() else audit_css_path
-    
-    if target_css.exists():
-        with open(target_css, "r", encoding="utf-8") as f:
+    if css_path.exists():
+        with open(css_path, "r", encoding="utf-8") as f:
             css_content = f.read()
 
     html_content = template.render(
         audit=audit_data,
         flowchart_data=flowchart_data,
-        css_content=css_content,
-        primary_color="#0A0A0F",
-        accent_color="#FF6B35",
-        accent2_color="#6C63FF",
+        css_content=css_content
     )
 
     file_id = str(uuid4())
     pdf_path = os.path.join(PDF_OUTPUT_DIR, f"{file_id}.pdf")
 
-    # Try xhtml2pdf (Pure Python, very stable on Windows)
     try:
-        from xhtml2pdf import pisa
-        with open(pdf_path, "wb") as f:
-            pisa_status = pisa.CreatePDF(html_content, dest=f)
+        browser = await launch(
+            headless=True,
+            args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+        )
+        page = await browser.newPage()
         
-        if not pisa_status.err:
-            logger.info(f"PDF generated via xhtml2pdf: {pdf_path}")
-            return pdf_path
-        else:
-            logger.warning(f"xhtml2pdf failed with error: {pisa_status.err}")
-    except Exception as e:
-        logger.warning(f"xhtml2pdf import/execution failed: {e}")
+        # Set viewport to A4 Landscape equivalent for rendering math
+        await page.setViewport({'width': 1280, 'height': 800})
+        
+        # Set content
+        await page.setContent(html_content, waitUntil='networkidle0')
+        
+        # Generate PDF
+        await page.pdf({
+            'path': pdf_path,
+            'format': 'A4',
+            'landscape': True,
+            'printBackground': True,
+            'margin': {
+                'top': '10mm',
+                'right': '10mm',
+                'bottom': '10mm',
+                'left': '10mm'
+            }
+        })
+        
+        await browser.close()
+        logger.info(f"Enterprise PDF generated via Puppeteer: {pdf_path}")
+        return pdf_path
 
-    # Try WeasyPrint (Modern CSS, but requires GTK+ on Windows)
+    except Exception as e:
+        logger.error(f"Puppeteer rendering failed: {e}")
+        # Fallback to HTML
+        html_path = os.path.join(PDF_OUTPUT_DIR, f"{file_id}.html")
+        with open(html_path, "w", encoding="utf-8") as f:
+            f.write(html_content)
+        return html_path
+
+
+async def convert_raw_html_to_pdf(html_content: str) -> str:
+    """
+    Directly converts raw AI-generated HTML to PDF using Puppeteer.
+    """
+    file_id = str(uuid4())
+    pdf_path = os.path.join(PDF_OUTPUT_DIR, f"{file_id}.pdf")
+
     try:
-        from weasyprint import HTML
-        HTML(string=html_content, base_url=str(TEMPLATES_DIR)).write_pdf(pdf_path)
-        logger.info(f"PDF generated via WeasyPrint: {pdf_path}")
+        browser = await launch(headless=True, args=['--no-sandbox'])
+        page = await browser.newPage()
+        await page.setContent(html_content, waitUntil='networkidle0')
+        await page.pdf({
+            'path': pdf_path,
+            'format': 'A4',
+            'landscape': True,
+            'printBackground': True
+        })
+        await browser.close()
         return pdf_path
     except Exception as e:
-        logger.warning(f"WeasyPrint failed: {e}")
-
-    # Fallback to HTML
-    html_path = os.path.join(PDF_OUTPUT_DIR, f"{file_id}.html")
-    with open(html_path, "w", encoding="utf-8") as f:
-        f.write(html_content)
-    logger.info(f"HTML fallback saved: {html_path}")
-    return html_path
+        logger.error(f"AI-HTML Puppeteer conversion failed: {e}")
+        html_path = os.path.join(PDF_OUTPUT_DIR, f"{file_id}.html")
+        with open(html_path, "w", encoding="utf-8") as f:
+            f.write(html_content)
+        return html_path
