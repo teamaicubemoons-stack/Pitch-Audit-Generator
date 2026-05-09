@@ -1,32 +1,22 @@
 # Python
-__pycache__/
-*.py[cod]
-*$py.class
-venv/
-.env
+backend/venv/
+backend/__pycache__/
+backend/*.pyc
 backend/.env
+backend/service_account.json
+backend/audits.json
 backend/generated_pdfs/
-backend/temp_screenshots/
-backend/temp/
+backend/scratch/
 
-# Node / React
-node_modules/
+# Node
 frontend/node_modules/
 frontend/dist/
-frontend/build/
-.eslintcache
+frontend/.env
 
-# Logs and databases
-*.log
-*.sqlite
-db.sqlite3
-
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# IDEs
+# Gemini / IDE
+.gemini/
 .vscode/
-.idea/
-*.swp
-*.swo

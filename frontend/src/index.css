@@ -1,32 +1,32 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Official Cubemoons Branding - Electric Blue & Cyan Theme */
+  --brand-primary: #0066FF;
+  --brand-secondary: #00D1FF;
+  --brand-dark: #0F172A;
+  --brand-accent: #00D1FF;
+  
+  --font-main: 'Inter', sans-serif;
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+}
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --brand-orange: #FF6B35;
-  --brand-indigo: #6C63FF;
-  --bg-main: #F9FAFB;
-  --text-dark: #111827;
-  --text-muted: #6B7280;
-}
-
 body {
-  margin: 0;
-  font-family: 'Inter', -apple-system, sans-serif;
-  background-color: var(--bg-main);
-  color: var(--text-dark);
+  background-color: #F8FAFC;
+  color: #1E293B;
+  font-family: var(--font-main);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  letter-spacing: -0.02em;
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
 }
 
-/* Custom Scrollbar for a Premium Feel */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -34,25 +34,24 @@ h1, h2, h3, h4, h5, h6 {
   background: #f1f1f1;
 }
 ::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: #cbd5e1;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #999;
+  background: var(--brand-primary);
 }
 
-@layer utilities {
-  .glass-panel {
-    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
-  }
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#FF6B35] to-[#6C63FF];
-  }
-}
-
-/* Capture Optimization */
 .audit-capture-container {
-  padding: 40px;
-  background-color: var(--bg-main);
-  border-radius: 40px;
+  background: #F8FAFC !important;
+}
+
+/* Animation Utilities */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.animate-shake {
+  animation: shake 0.2s ease-in-out 0s 2;
 }

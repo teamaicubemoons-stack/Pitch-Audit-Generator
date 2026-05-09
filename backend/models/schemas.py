@@ -25,6 +25,10 @@ class AuditFormInput(BaseModel):
     meeting_notes: Optional[str] = None
     proposed_solution: Optional[str] = None
     generate_flowchart: bool = True
+    
+    # Audit Tracking (System Internal)
+    generator_name: Optional[str] = None
+    generator_id: Optional[str] = None
 
 
 class AuditOutput(BaseModel):

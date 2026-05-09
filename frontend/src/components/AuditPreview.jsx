@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import * as Icons from 'lucide-react';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jsPDF';
+import jsPDF from 'jspdf';
 import VisualFlowchart from './VisualFlowchart';
 import {
   Download, ChevronDown, ChevronUp, Star, Zap, Target,
@@ -42,7 +42,7 @@ const Section = ({ id, icon: Icon, title, accent, children, forceOpen }) => {
 const priorityConfig = {
   Critical: { color: '#DC2626', bg: '#FEF2F2', Icon: AlertCircle },
   High:     { color: '#D97706', bg: '#FFFBEB', Icon: AlertTriangle },
-  Medium:   { color: '#4F46E5', bg: '#F5F3FF', Icon: Target },
+  Medium:   { color: '#0066FF', bg: '#F5F3FF', Icon: Target },
 };
 
 export default function AuditPreview({ auditData }) {
@@ -70,19 +70,15 @@ export default function AuditPreview({ auditData }) {
     setIsExporting(true);
     setForceOpenAll(true);
     
-    // Wake up rendering engines
     window.scrollTo(0, document.body.scrollHeight);
     await new Promise(resolve => setTimeout(resolve, 800));
     window.scrollTo(0, 0);
 
-    // Final buffer for all components
     await new Promise(resolve => setTimeout(resolve, 2500));
 
     try {
       const element = auditRef.current;
       const originalWidth = element.offsetWidth;
-      
-      // MASSIVE BUFFER: 800px extra to ensure footer is 100% inside
       const fullHeight = element.scrollHeight + 800; 
 
       const canvas = await html2canvas(element, {
@@ -94,7 +90,7 @@ export default function AuditPreview({ auditData }) {
         width: originalWidth,
         height: fullHeight,
         windowWidth: originalWidth,
-        windowHeight: fullHeight + 1000, // Force a massive viewport
+        windowHeight: fullHeight + 1000,
         scrollX: 0,
         scrollY: 0,
         x: 0,
@@ -104,7 +100,7 @@ export default function AuditPreview({ auditData }) {
           if (cloneContainer) {
             cloneContainer.style.width = `${originalWidth}px`;
             cloneContainer.style.height = `${fullHeight}px`;
-            cloneContainer.style.paddingBottom = '400px'; // Force bottom margin
+            cloneContainer.style.paddingBottom = '400px';
             cloneContainer.style.borderRadius = '0';
             cloneContainer.style.border = 'none';
             cloneContainer.style.overflow = 'visible';
@@ -115,7 +111,6 @@ export default function AuditPreview({ auditData }) {
 
       const imgData = canvas.toDataURL("image/jpeg", 0.9);
       const pdfWidth = 210;
-      // Add extra 5mm to PDF height for safety margin
       const pdfHeight = ((canvas.height * pdfWidth) / canvas.width) + 10; 
 
       const pdf = new jsPDF({
@@ -125,7 +120,7 @@ export default function AuditPreview({ auditData }) {
       });
 
       pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight - 10, undefined, 'FAST');
-      pdf.save(`Full_Pitch_Audit_${meta.client_name?.replace(/\s+/g, '_')}.pdf`);
+      pdf.save(`Strategic_Audit_${meta.client_name?.replace(/\s+/g, '_')}.pdf`);
       
     } catch (error) {
       console.error("PDF Export Error:", error);
@@ -138,170 +133,138 @@ export default function AuditPreview({ auditData }) {
   return (
     <div className="max-w-4xl mx-auto py-10 px-4 font-['Inter']">
       
-      {/* EXPORT BUTTON */}
+      {/* EXPORT FAB */}
       <div className="fixed bottom-8 right-8 z-[100] export-hide">
         <button
           onClick={handleDownloadPDF}
           disabled={isExporting}
           className={`group flex items-center gap-2 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-2xl border-2 ${
-            isExporting ? 'bg-slate-900 text-white cursor-wait' : 'bg-white text-slate-900 hover:bg-slate-900 hover:text-white border-slate-900'
+            isExporting ? 'bg-slate-900 text-white cursor-wait' : 'bg-white text-slate-900 hover:bg-[#0066FF] hover:text-white border-slate-900'
           }`}
         >
-          {isExporting ? <><Loader2 className="animate-spin" size={14} /> CAPTURING FINAL REPORT...</> : <><Download size={14} /> EXPORT FULL PDF</>}
+          {isExporting ? <><Loader2 className="animate-spin" size={14} /> EXPORTING...</> : <><Download size={14} /> EXPORT OFFICIAL PDF</>}
         </button>
       </div>
 
       <div ref={auditRef} className="audit-capture-container space-y-10 bg-slate-50 relative rounded-xl overflow-visible border border-slate-100 pb-20">
         
-        {/* BLOBS */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-30">
-           <div className="absolute top-[-5%] right-[-5%] w-[300px] h-[300px] bg-indigo-100/50 rounded-full blur-[80px]" />
-           <div className="absolute bottom-[10%] left-[-5%] w-[250px] h-[250px] bg-orange-50/50 rounded-full blur-[60px]" />
+        {/* BRAND BLOBS */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
+           <div className="absolute top-[-5%] right-[-5%] w-[400px] h-[400px] bg-blue-400/30 rounded-full blur-[100px]" />
+           <div className="absolute bottom-[10%] left-[-5%] w-[350px] h-[350px] bg-cyan-300/20 rounded-full blur-[80px]" />
         </div>
 
-        {/* COVER */}
-        <div className="bg-[#0F172A] rounded-xl overflow-hidden shadow-2xl relative border-b-4 border-[#FF6B35]">
-          <div className="relative px-10 py-20">
+        {/* COVER - BRANDED */}
+        <div className="bg-[#0F172A] rounded-xl overflow-hidden shadow-2xl relative border-b-8 border-[#0066FF]">
+          <div className="relative px-12 py-24">
             <div className="max-w-2xl">
-              <div className="flex items-center gap-2 mb-10">
-                <div className="w-8 h-8 bg-[#FF6B35] rounded-lg flex items-center justify-center shadow-lg"><div className="w-3 h-3 bg-white rounded-sm rotate-45" /></div>
-                <div className="text-white font-bold text-base tracking-widest uppercase opacity-90">Cubemoons Strategy</div>
+              <div className="flex items-center gap-4 mb-12">
+                <div className="p-4 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl">
+                   <img 
+                    src="/logo.png" 
+                    alt="Cubemoons Logo" 
+                    className="w-16 h-16 object-contain" 
+                    onError={(e) => { e.target.src = "https://cubemoons.com/assets/logo/cubemoons-favicon.svg" }}
+                   />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-white font-black text-xl tracking-[0.2em] uppercase">Cubemoons</span>
+                  <span className="text-blue-500 font-bold text-[10px] tracking-widest uppercase">Intelligence Unit</span>
+                </div>
               </div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[#FF6B35] text-[9px] font-black uppercase tracking-[0.3em] mb-8">Strategic Intelligence Report</div>
-              <h1 className="text-4xl lg:text-5xl font-black text-white mb-6 leading-tight tracking-tight border-l-4 border-[#FF6B35] pl-8">{meta.client_name || 'Client Audit'}</h1>
-              <p className="text-lg text-slate-400 font-medium leading-relaxed max-w-xl mb-12 opacity-90 italic">{s1.headline}</p>
-              <div className="grid grid-cols-3 gap-6 pt-10 border-t border-white/5">
-                 <div><p className="text-slate-500 font-black uppercase tracking-widest mb-1.5 text-[9px]">Sector</p><p className="text-white font-bold text-sm">{meta.industry}</p></div>
-                 <div><p className="text-slate-500 font-black uppercase tracking-widest mb-1.5 text-[9px]">Audit Date</p><p className="text-white font-bold text-sm">{meta.audit_date}</p></div>
-                 <div><p className="text-slate-500 font-black uppercase tracking-widest mb-1.5 text-[9px]">Verified</p><p className="text-[#FF6B35] font-black text-sm">Strategic</p></div>
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[#00D1FF] text-[10px] font-black uppercase tracking-[0.3em] mb-10">Strategic Intelligence Audit</div>
+              <h1 className="text-4xl lg:text-6xl font-black text-white mb-8 leading-tight tracking-tight">{meta.client_name || 'Client Audit'}</h1>
+              <p className="text-xl text-slate-400 font-medium leading-relaxed max-w-xl mb-14 opacity-90 italic border-l-4 border-[#0066FF] pl-8">{s1.headline}</p>
+              <div className="grid grid-cols-3 gap-8 pt-12 border-t border-white/5">
+                 <div><p className="text-slate-500 font-black uppercase tracking-widest mb-2 text-[10px]">Industry</p><p className="text-white font-bold text-base">{meta.industry}</p></div>
+                 <div><p className="text-slate-500 font-black uppercase tracking-widest mb-2 text-[10px]">Audit Cycle</p><p className="text-white font-bold text-base">{meta.audit_date}</p></div>
+                 <div><p className="text-slate-500 font-black uppercase tracking-widest mb-2 text-[10px]">Status</p><p className="text-[#00D1FF] font-black text-base uppercase tracking-widest">Authenticated</p></div>
               </div>
             </div>
           </div>
         </div>
 
         {/* 01: EXECUTIVE SUMMARY */}
-        <div className="bg-white rounded-xl p-10 lg:p-12 border border-slate-200 shadow-sm relative overflow-hidden">
-           <div className="absolute top-0 left-0 w-1.5 h-full bg-[#FF6B35]" />
-           <div className="max-w-2xl space-y-6">
-              <div className="flex items-center gap-3">
-                 <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-[#FF6B35]"><Target size={18} /></div>
-                 <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Executive Summary</h2>
+        <div className="bg-white rounded-xl p-10 lg:p-16 border border-slate-200 shadow-sm relative overflow-hidden">
+           <div className="absolute top-0 left-0 w-2 h-full bg-[#0066FF]" />
+           <div className="max-w-3xl space-y-8">
+              <div className="flex items-center gap-4">
+                 <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#0066FF] shadow-sm"><Target size={20} /></div>
+                 <h2 className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">Executive Summary</h2>
               </div>
-              <blockquote className="text-2xl lg:text-3xl font-black text-slate-900 leading-tight">"{s1.headline}"</blockquote>
-              <p className="text-base text-slate-600 font-medium leading-relaxed italic">{s1.overview}</p>
-              <div className="grid grid-cols-4 gap-4 pt-8">
+              <blockquote className="text-3xl lg:text-4xl font-black text-slate-900 leading-tight tracking-tight">"{s1.headline}"</blockquote>
+              <p className="text-lg text-slate-600 font-medium leading-relaxed italic">{s1.overview}</p>
+              <div className="grid grid-cols-4 gap-6 pt-10 border-t border-slate-50">
                  {s1.key_metrics?.slice(0,4).map((m, i) => (
-                   <div key={i}>
-                      <div className="text-xl font-black text-slate-900">{m.value}</div>
-                      <div className="text-[8px] font-black text-[#FF6B35] uppercase tracking-widest">{m.label}</div>
+                   <div key={i} className="group">
+                      <div className="text-2xl font-black text-slate-900 group-hover:text-[#0066FF] transition-colors">{m.value}</div>
+                      <div className="text-[9px] font-black text-blue-500 uppercase tracking-widest">{m.label}</div>
                    </div>
                  ))}
               </div>
            </div>
         </div>
 
-        {/* SECTIONS 01-05 */}
-        <Section id="01" icon={Users} title="Company Overview & Maturity" accent="#4F46E5" forceOpen={forceOpenAll}>
-           <div className="grid lg:grid-cols-2 gap-8 py-2">
-              <div className="space-y-6">
-                 <div><h3 className="text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-3">Context</h3><p className="text-base font-bold text-slate-800 leading-relaxed">{s2.about}</p></div>
-                 <div className="p-6 bg-slate-50 rounded-xl border border-slate-100"><h3 className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Revenue Model</h3><p className="text-sm font-semibold text-slate-600 leading-relaxed">{s2.business_model}</p></div>
+        {/* 02: POSITIONING */}
+        <Section id="01" icon={Users} title="Market Maturity Assessment" accent="#0066FF" forceOpen={forceOpenAll}>
+           <div className="grid lg:grid-cols-2 gap-10 py-2">
+              <div className="space-y-8">
+                 <div><h3 className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-4">Strategic Context</h3><p className="text-lg font-bold text-slate-800 leading-relaxed">{s2.about}</p></div>
+                 <div className="p-8 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner"><h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Value Extraction Model</h3><p className="text-base font-semibold text-slate-600 leading-relaxed">{s2.business_model}</p></div>
               </div>
               <div className="space-y-6">
-                 <div className="bg-indigo-900 rounded-xl p-6 text-white shadow-xl relative">
-                    <div className="flex items-center justify-between mb-4">
-                       <h3 className="text-[9px] font-black text-indigo-300 uppercase tracking-widest">Digital Quotient</h3>
-                       <div className="text-3xl font-black text-[#FF6B35]">{s2.digital_maturity_score}<span className="text-xs text-indigo-500">/10</span></div>
+                 <div className="bg-[#0F172A] rounded-2xl p-10 text-white shadow-2xl relative border-t-4 border-[#00D1FF]">
+                    <div className="flex items-center justify-between mb-8">
+                       <h3 className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em]">Digital IQ Score</h3>
+                       <div className="text-4xl font-black text-[#00D1FF]">{s2.digital_maturity_score}<span className="text-sm text-slate-500">/10</span></div>
                     </div>
-                    <p className="text-xs font-bold text-indigo-50 italic leading-relaxed border-l-2 border-[#FF6B35] pl-4">{s2.maturity_assessment}</p>
+                    <div className="space-y-4">
+                       <p className="text-sm font-bold text-blue-50 italic leading-relaxed border-l-4 border-[#00D1FF] pl-6 py-2 bg-white/5 rounded-r-xl">{s2.maturity_assessment}</p>
+                    </div>
                  </div>
               </div>
            </div>
         </Section>
 
-        <Section id="02" icon={Shield} title="Strategic Advantage Matrix" accent="#10B981" forceOpen={forceOpenAll}>
-           <div className="grid md:grid-cols-2 gap-4 py-2">
+        {/* SWOT */}
+        <Section id="02" icon={Shield} title="Strategic Risk & Opportunity Matrix" accent="#10B981" forceOpen={forceOpenAll}>
+           <div className="grid md:grid-cols-2 gap-6 py-2">
               {[
-                { key: 'strengths',    label: 'Strengths',     color: '#059669', bg: '#F0FDF4' },
-                { key: 'weaknesses',   label: 'Weaknesses',    color: '#DC2626', bg: '#FEF2F2' },
-                { key: 'opportunities',label: 'Opportunities', color: '#2563EB', bg: '#EFF6FF' },
-                { key: 'threats',      label: 'Threats',       color: '#D97706', bg: '#FFFBEB' },
+                { key: 'strengths',    label: 'Strengths',     color: '#0066FF', bg: '#F0F7FF' },
+                { key: 'weaknesses',   label: 'Weaknesses',    color: '#EF4444', bg: '#FEF2F2' },
+                { key: 'opportunities',label: 'Opportunities', color: '#00D1FF', bg: '#F0FDFF' },
+                { key: 'threats',      label: 'Threats',       color: '#F59E0B', bg: '#FFFBEB' },
               ].map(({ key, label, color, bg }) => (
-                <div key={key} className="p-6 border border-slate-100 rounded-xl shadow-sm" style={{ backgroundColor: bg }}>
-                   <div className="flex items-center gap-2 mb-4">
-                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
-                      <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{label}</h4>
+                <div key={key} className="p-8 border border-slate-100 rounded-2xl shadow-sm" style={{ backgroundColor: bg }}>
+                   <div className="flex items-center gap-3 mb-6">
+                      <div className="w-2 h-2 rounded-full shadow-sm" style={{ backgroundColor: color }} />
+                      <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em]">{label}</h4>
                    </div>
-                   <ul className="space-y-2">
-                     {(s3[key] || []).map((item, i) => ( <li key={i} className="flex items-start gap-2 text-xs font-bold text-slate-700 leading-tight"><CheckCircle2 size={12} className="mt-0.5 flex-shrink-0" style={{ color: color }} /> {item}</li> ))}
+                   <ul className="space-y-3">
+                     {(s3[key] || []).map((item, i) => ( <li key={i} className="flex items-start gap-3 text-xs font-bold text-slate-700 leading-snug"><CheckCircle2 size={14} className="mt-0.5 flex-shrink-0" style={{ color: color }} /> {item}</li> ))}
                    </ul>
                 </div>
               ))}
            </div>
         </Section>
 
-        <Section id="03" icon={AlertTriangle} title="Friction Point Analysis" accent="#EF4444" forceOpen={forceOpenAll}>
-           <div className="space-y-4 py-2">
-              <p className="text-sm font-bold text-slate-500 leading-relaxed italic bg-slate-50 p-4 rounded-xl border-l-2 border-slate-200">{s4.problem_summary}</p>
-              {(s4.primary_problems || []).map((p, i) => {
-                 const cfg = priorityConfig[p.priority] || priorityConfig.Medium;
-                 return (
-                   <div key={i} className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-                      <div className="flex justify-between items-center mb-4">
-                         <div className="flex items-center gap-3"><span className="text-[10px] font-black text-slate-300">0{i+1}</span><h4 className="text-base font-black text-slate-900 tracking-tight">{p.problem_title}</h4></div>
-                         <div className="px-2 py-0.5 rounded-full text-[8px] font-black tracking-widest uppercase text-white shadow-md" style={{ backgroundColor: cfg.color }}>{p.priority} RISK</div>
-                      </div>
-                      <p className="text-sm font-bold text-slate-600 mb-6 leading-relaxed">{p.description}</p>
-                      <div className="grid md:grid-cols-2 gap-4 pt-4 border-t border-slate-50 text-[9px]">
-                         <div className="bg-slate-50 p-3 rounded-lg"><p className="text-slate-400 font-black uppercase mb-1">Impact</p><p className="text-slate-900 font-black">{p.business_impact}</p></div>
-                         <div className="bg-slate-50 p-3 rounded-lg"><p className="text-slate-400 font-black uppercase mb-1">Root Cause</p><p className="text-slate-900 font-black">{p.root_cause}</p></div>
-                      </div>
-                   </div>
-                 );
-              })}
-           </div>
-        </Section>
-
-        <Section id="04" icon={Zap} title="Engineering Blueprint" accent="#F59E0B" forceOpen={forceOpenAll}>
-           <div className="py-2 space-y-6">
-              <div className="bg-slate-900 rounded-xl p-8 text-white relative shadow-xl">
-                 <h3 className="text-[8px] font-black text-[#FF6B35] uppercase tracking-[0.4em] mb-4">Core Intervention</h3>
-                 <p className="text-xl font-black leading-snug">{s5.solution_overview}</p>
-              </div>
-              <div className="grid lg:grid-cols-2 gap-4">
-                 {(s5.solution_components || []).map((c, i) => (
-                   <div key={i} className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm flex flex-col justify-between">
-                      <div>
-                         <div className="flex justify-between items-start mb-4"><h4 className="text-sm font-black text-slate-900">{c.component_name}</h4><span className="text-[8px] font-black tracking-widest uppercase bg-orange-50 text-[#FF6B35] px-2 py-0.5 rounded-md">{c.cubemoons_service}</span></div>
-                         <p className="text-xs font-bold text-slate-600 mb-6 leading-relaxed italic border-l border-slate-100 pl-3">{c.what_we_build}</p>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-3 text-[8px] font-black text-slate-400 tracking-widest pt-4 border-t border-slate-50"><span>CPU: {c.technology}</span><span className="text-green-600">ROI: {c.solves_problem}</span></div>
-                   </div>
-                 ))}
-              </div>
-           </div>
-        </Section>
-
-        <Section id="05" icon={Clock} title="Deployment Roadmap" accent="#06B6D4" forceOpen={forceOpenAll}>
+        {/* SOLUTION */}
+        <Section id="04" icon={Zap} title="Engineering & Intervention Blueprint" accent="#0066FF" forceOpen={forceOpenAll}>
            <div className="py-2 space-y-8">
-              <div className="grid grid-cols-2 gap-4 bg-slate-900 rounded-xl p-6 text-white shadow-lg">
-                 <div><p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Timeline</p><p className="text-xl font-black text-white">{s7.total_timeline}</p></div>
-                 <div className="border-l border-slate-800 pl-6"><p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Delivery</p><p className="text-xl font-black text-white">{s7.delivery_model}</p></div>
+              <div className="bg-[#0F172A] rounded-2xl p-10 text-white relative shadow-2xl border-l-8 border-[#0066FF]">
+                 <div className="flex items-center gap-2 mb-6"><Sparkles size={16} className="text-[#00D1FF] animate-pulse" /><h3 className="text-[10px] font-black text-blue-400 uppercase tracking-[0.4em]">Proprietary Cubemoons Solution</h3></div>
+                 <p className="text-2xl font-black leading-tight text-white/95">{s5.solution_overview}</p>
               </div>
-              <div className="space-y-6 relative">
-                 <div className="absolute left-[24px] top-4 bottom-4 w-0.5 bg-slate-100" />
-                 {(s7.phases || []).map((ph, i) => (
-                   <div key={i} className="flex gap-6 items-start">
-                      <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 shadow-md flex items-center justify-center font-black text-sm text-slate-900 z-10 flex-shrink-0">0{ph.phase_number}</div>
-                      <div className="flex-1 bg-white rounded-xl border border-slate-100 p-6 shadow-sm">
-                         <div className="flex justify-between items-center mb-6 border-b border-slate-50 pb-4">
-                            <h4 className="text-lg font-black text-slate-900 tracking-tight">{ph.phase_name}</h4>
-                            <div className="px-2 py-0.5 bg-cyan-50 text-cyan-600 rounded-md text-[8px] font-black tracking-widest border border-cyan-100">{ph.duration}</div>
-                         </div>
-                         <ul className="grid md:grid-cols-2 gap-3 mb-6">
-                           {(ph.deliverables || []).map((d, di) => ( <li key={di} className="flex items-center gap-3 text-xs font-bold text-slate-600 bg-slate-50/50 p-2.5 rounded"><CheckCircle2 size={12} className="text-[#FF6B35]" /> {d}</li> ))}
-                         </ul>
-                         <div className="p-3 bg-green-50 rounded-lg border border-green-100 flex items-center gap-3 text-green-700 font-black tracking-tight text-[9px] uppercase"><Icons.Rocket size={14} /> MILESTONE: {ph.milestone}</div>
+              <div className="grid lg:grid-cols-2 gap-6">
+                 {(s5.solution_components || []).map((c, i) => (
+                   <div key={i} className="bg-white border border-slate-100 rounded-2xl p-8 shadow-sm flex flex-col justify-between hover:border-blue-500/30 transition-all group">
+                      <div>
+                         <div className="flex justify-between items-start mb-6"><h4 className="text-lg font-black text-slate-900 tracking-tight group-hover:text-blue-600 transition-colors">{c.component_name}</h4><span className="text-[9px] font-black tracking-[0.2em] uppercase bg-blue-50 text-[#0066FF] px-3 py-1 rounded-full border border-blue-100">{c.cubemoons_service}</span></div>
+                         <p className="text-sm font-bold text-slate-600 mb-8 leading-relaxed italic border-l-2 border-slate-100 pl-4">{c.what_we_build}</p>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-4 text-[9px] font-black tracking-widest pt-6 border-t border-slate-50 uppercase">
+                        <span className="text-slate-400">STACK: <span className="text-slate-900">{c.technology}</span></span>
+                        <span className="text-blue-500 font-black">ROI: {c.solves_problem}</span>
                       </div>
                    </div>
                  ))}
@@ -310,41 +273,53 @@ export default function AuditPreview({ auditData }) {
         </Section>
 
         {/* FLOWCHART */}
-        <div className="bg-white rounded-xl p-8 border border-slate-200 shadow-xl overflow-visible relative min-h-[400px]">
-           <div className="flex items-center gap-4 mb-8 border-b border-slate-50 pb-4">
-              <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400"><Icons.Code2 size={20} /></div>
-              <h3 className="text-xl font-black text-slate-900 tracking-tight">System Architecture</h3>
+        <div className="bg-white rounded-2xl p-10 border border-slate-200 shadow-xl overflow-visible relative min-h-[400px]">
+           <div className="flex items-center gap-4 mb-10 border-b border-slate-50 pb-6">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0066FF]"><Icons.Code2 size={24} /></div>
+              <div className="flex flex-col">
+                <h3 className="text-2xl font-black text-slate-900 tracking-tight">System Architecture</h3>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">High-Fidelity Integration Schema</p>
+              </div>
            </div>
-           <div className="rounded-lg border border-slate-50 bg-slate-50/50 p-6 overflow-visible">
+           <div className="rounded-2xl border border-slate-50 bg-slate-50/30 p-8 overflow-visible">
               <VisualFlowchart data={flowchart_data} />
            </div>
         </div>
 
         {/* CTA FOOTER */}
-        <div className="bg-[#0A0A0F] rounded-xl overflow-visible shadow-2xl relative">
-           <div className="absolute top-0 left-0 w-full h-[4px] bg-[#FF6B35]" />
-           <div className="relative px-10 py-16 text-center">
-              <p className="text-[#FF6B35] font-black text-[9px] uppercase tracking-[0.4em] mb-10">Strategic Activation</p>
-              <h2 className="text-3xl lg:text-4xl font-black text-white mb-8 tracking-tight">{s10.cta_headline}</h2>
-              <p className="text-base text-slate-500 font-medium max-w-2xl mx-auto mb-12 italic opacity-80">{s10.recommended_next_step}</p>
+        <div className="bg-[#0A0A0F] rounded-2xl overflow-visible shadow-2xl relative border-t-4 border-[#0066FF]">
+           <div className="relative px-12 py-24 text-center">
+              <div className="flex justify-center mb-10">
+                 <div className="p-5 bg-white/5 rounded-3xl border border-white/10 shadow-2xl">
+                    <img 
+                      src="/logo.png" 
+                      alt="Logo" 
+                      className="w-20 h-20 object-contain" 
+                      onError={(e) => { e.target.src = "https://cubemoons.com/assets/logo/cubemoons-favicon.svg" }}
+                    />
+                 </div>
+              </div>
+              <p className="text-[#00D1FF] font-black text-[10px] uppercase tracking-[0.5em] mb-12">Strategic Partnership Activation</p>
+              <h2 className="text-4xl lg:text-5xl font-black text-white mb-10 tracking-tight leading-tight">{s10.cta_headline}</h2>
+              <p className="text-lg text-slate-400 font-medium max-w-2xl mx-auto mb-16 italic opacity-80 leading-relaxed">"{s10.recommended_next_step}"</p>
               
               {s10.offer && (
-                <div className="inline-block px-10 py-3 bg-white text-slate-950 font-black text-lg rounded-lg mb-16 shadow-2xl uppercase tracking-tight">
+                <div className="inline-block px-12 py-5 bg-gradient-to-r from-[#0066FF] to-[#00D1FF] text-white font-black text-xl rounded-2xl mb-24 shadow-[0_20px_40px_rgba(0,102,255,0.3)] uppercase tracking-tight transform hover:scale-105 transition-all cursor-pointer">
                    {s10.offer}
                 </div>
               )}
 
-              <div className="grid grid-cols-4 gap-4 pt-12 border-t border-white/5">
+              <div className="grid grid-cols-4 gap-8 pt-16 border-t border-white/5">
                 {[
-                  { icon: <Phone size={14}/>, label: 'VOICE', val: s10.contact?.phone },
-                  { icon: <Mail size={14}/>, label: 'EMAIL', val: s10.contact?.email },
-                  { icon: <Globe size={14}/>, label: 'WEB', val: s10.contact?.website },
-                  { icon: <Calendar size={14}/>, label: 'MEET', val: s10.contact?.calendar_link },
+                  { icon: <Phone size={16}/>, label: 'VOICE', val: s10.contact?.phone },
+                  { icon: <Mail size={16}/>, label: 'EMAIL', val: s10.contact?.email },
+                  { icon: <Globe size={16}/>, label: 'WEB', val: s10.contact?.website },
+                  { icon: <Calendar size={16}/>, label: 'MEET', val: s10.contact?.calendar_link },
                 ].map((c, i) => (
                   <div key={i} className="text-center group cursor-pointer">
-                     <div className="text-slate-600 mb-3 flex justify-center group-hover:text-[#FF6B35] transition-colors">{c.icon}</div>
-                     <p className="text-slate-500 text-[8px] font-black tracking-widest mb-1 uppercase">{c.label}</p>
-                     <p className="text-white font-bold text-[9px] break-all opacity-60">{c.val}</p>
+                     <div className="text-slate-600 mb-4 flex justify-center group-hover:text-[#00D1FF] transition-colors">{c.icon}</div>
+                     <p className="text-slate-500 text-[10px] font-black tracking-widest mb-2 uppercase opacity-50">{c.label}</p>
+                     <p className="text-white font-bold text-[11px] break-all group-hover:text-blue-200 transition-colors">{c.val}</p>
                   </div>
                 ))}
               </div>
@@ -353,8 +328,8 @@ export default function AuditPreview({ auditData }) {
 
       </div>
 
-      <div className="py-12 text-center text-[9px] font-black text-slate-400 uppercase tracking-[0.6em] export-hide">
-        Cubemoons Intelligence • Strategy Excellence • 2026
+      <div className="py-16 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.8em] export-hide">
+        Cubemoons Intelligence Unit • Strategy Division • 2026
       </div>
     </div>
   );

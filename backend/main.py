@@ -13,6 +13,7 @@ from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 
 from routes.audit import router as audit_router
+from routes.auth import router as auth_router
 
 load_dotenv()
 
@@ -48,6 +49,7 @@ app.add_middleware(
 
 # ── Routes ─────────────────────────────────────────────────────────────────────
 app.include_router(audit_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
 
 # ── PDF output dir ────────────────────────────────────────────────────────────
 PDF_DIR = os.getenv("PDF_OUTPUT_DIR", "./generated_pdfs")
