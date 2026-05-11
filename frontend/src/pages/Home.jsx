@@ -26,7 +26,7 @@ export default function Home() {
     if (!user || !user.username) return;
     try {
       setLoadingHistory(true);
-      const endpoint = isAdmin ? '/admin/all-audits' : `/my-audits/${user.username}`;
+      const endpoint = isAdmin ? '/api/admin/all-audits' : `/api/my-audits/${user.username}`;
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout

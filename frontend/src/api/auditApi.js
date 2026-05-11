@@ -10,5 +10,5 @@ export const generateAudit = async (formData) => {
 
 export const getPdfUrl = (path) => {
   if (!path) return null;
-  return `${path}`;
+  return `/api${path}`;
 };
