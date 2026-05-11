@@ -1,0 +1,22 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/Pitch-Audit-Generator
+            git pull origin main
+            cd backend && source venv/bin/activate && pip install -r requirements.txt
+            cd ../frontend && npm install && npm run build
+            pm2 restart all
