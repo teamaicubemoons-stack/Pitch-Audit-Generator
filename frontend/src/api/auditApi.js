@@ -10,5 +10,5 @@ export const generateAudit = async (formData) => {
 
 export const getPdfUrl = (path) => {
   if (!path) return null;
-  return `http://localhost:8000${path}`;
+  return `http://51.20.72.81:8000${path}`;
 };
