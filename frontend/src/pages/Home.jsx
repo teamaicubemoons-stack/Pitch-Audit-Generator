@@ -147,46 +147,36 @@ export default function Home() {
                      <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Target Company</th>
                      <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Generation Date</th>
                      {isAdmin && <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Specialist</th>}
-                     <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Report</th>
-                   </tr>
-                 </thead>
-                 <tbody className="divide-y divide-slate-50">
-                   {history.map((item, idx) => (
-                     <tr key={idx} className="hover:bg-blue-50/30 transition-all group">
-                       <td className="px-8 py-7">
-                          <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200/50">{item.client_id}</span>
-                       </td>
-                       <td className="px-8 py-7">
-                          <div className="text-sm font-extrabold text-slate-800 tracking-tight">{item.company_name}</div>
-                       </td>
-                       <td className="px-8 py-6">
-                          <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
-                             <Calendar size={14} className="text-slate-400" />
-                             {item.date}
-                          </div>
-                       </td>
-                       {isAdmin && (
-                         <td className="px-8 py-6">
-                            <div className="flex items-center gap-2">
-                               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs">
-                                  {item.generator_name?.[0]?.toUpperCase() || 'U'}
-                               </div>
-                               <span className="text-sm font-semibold text-slate-700">{item.generator_name}</span>
-                            </div>
-                         </td>
-                       )}
-                       <td className="px-8 py-7 text-right">
-                          <button 
-                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-600 hover:border-blue-600 hover:text-white transition-all shadow-sm active:scale-95 group/btn"
-                            onClick={() => window.open(item.qr_code === 'SECURED' || item.qr_code === '#' ? '#' : item.qr_code, '_blank')}
-                          >
-                            <FileDown size={14} className="group-hover/btn:animate-bounce" />
-                            Report
-                          </button>
-                       </td>
-                     </tr>
-                   ))}
-                 </tbody>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {history.map((item, idx) => (
+                      <tr key={idx} className="hover:bg-blue-50/30 transition-all group">
+                        <td className="px-8 py-7">
+                           <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200/50">{item.client_id}</span>
+                        </td>
+                        <td className="px-8 py-7">
+                           <div className="text-sm font-extrabold text-slate-800 tracking-tight">{item.company_name}</div>
+                        </td>
+                        <td className="px-8 py-6">
+                           <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
+                              <Calendar size={14} className="text-slate-400" />
+                              {item.date}
+                           </div>
+                        </td>
+                        {isAdmin && (
+                          <td className="px-8 py-6">
+                             <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs">
+                                   {item.generator_name?.[0]?.toUpperCase() || 'U'}
+                                </div>
+                                <span className="text-sm font-semibold text-slate-700">{item.generator_name}</span>
+                             </div>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
                </table>
              </div>
            </div>

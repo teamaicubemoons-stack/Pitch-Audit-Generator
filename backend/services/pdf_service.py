@@ -50,11 +50,16 @@ async def generate_pdf(audit_data: dict, flowchart_data: dict = None) -> str:
     pdf_path = os.path.join(PDF_OUTPUT_DIR, f"{file_id}.pdf")
 
     try:
-        browser = await launch(
-            headless=True,
-            executablePath=r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-            args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-        )
+        # Use CHROME_PATH env var for Linux/AWS, otherwise let pyppeteer find it
+        chrome_path = os.getenv("CHROME_PATH")
+        launch_kwargs = {
+            "headless": True,
+            "args": ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+        }
+        if chrome_path:
+            launch_kwargs["executablePath"] = chrome_path
+
+        browser = await launch(**launch_kwargs)
         page = await browser.newPage()
         
         # Set viewport to A4 Landscape equivalent for rendering math
@@ -98,11 +103,12 @@ async def convert_raw_html_to_pdf(html_content: str) -> str:
     pdf_path = os.path.join(PDF_OUTPUT_DIR, f"{file_id}.pdf")
 
     try:
-        browser = await launch(
-            headless=True, 
-            executablePath=r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-            args=['--no-sandbox']
-        )
+        chrome_path = os.getenv("CHROME_PATH")
+        launch_kwargs = {"headless": True, "args": ['--no-sandbox']}
+        if chrome_path:
+            launch_kwargs["executablePath"] = chrome_path
+
+        browser = await launch(**launch_kwargs)
         page = await browser.newPage()
         await page.setContent(html_content, waitUntil='networkidle0')
         await page.pdf({
