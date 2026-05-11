@@ -137,7 +137,7 @@ export default function Home() {
               <div className="w-16 h-16 border-4 border-blue-100 border-t-blue-600 rounded-full mx-auto animate-spin mb-6"></div>
               <p className="text-slate-400 font-semibold tracking-widest uppercase text-xs">Syncing Cloud Data...</p>
            </div>
-         ) : history.length > 0 ? (
+         ) : (history && history.length > 0) ? (
            <div className="glass-card rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-2xl shadow-blue-900/5">
              <div className="overflow-x-auto">
                <table className="w-full text-left">
