@@ -128,6 +128,7 @@ async def generate_audit(inp: AuditFormInput):
 
     # ── STEP 6: PDF Generation ────────────────────────────────────
     logger.info("[STEP 6] Generating PDF...")
+    pdf_path = None
     try:
         pdf_path = await pdf_service.generate_pdf(audit_content, flowchart_data)
         pdf_filename = Path(pdf_path).name
@@ -296,3 +297,38 @@ async def generate_professional_pdf(audit_data: dict):
     except Exception as e:
         logger.error(f"Professional PDF generation failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/admin/all-audits")
+async def get_all_audits_admin():
+    """Fetch ALL audits from Google Sheets for Admin view."""
+    try:
+        scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+        creds_path = os.path.join(os.getcwd(), "service_account.json")
+        creds = Credentials.from_service_account_file(creds_path, scopes=scope)
+        client = gspread.authorize(creds)
+        
+        spreadsheet_url = "https://docs.google.com/spreadsheets/d/1fMbZzsr6tvTXc70cjs9rR3CPvqW6zPILr4DIJV0EFDY/edit"
+        doc = client.open_by_url(spreadsheet_url)
+        all_sheets = doc.worksheets()
+        sheet = next((s for s in all_sheets if "Audit" in s.title), all_sheets[0])
+        
+        records = sheet.get_all_records()
+        
+        # Return everything, sorted newest first
+        all_history = []
+        for row in records:
+            row_clean = {str(k).strip().lower(): v for k, v in row.items()}
+            all_history.append({
+                "client_id": row_clean.get("client id", "N/A"),
+                "company_name": row_clean.get("company name", "Unknown"),
+                "date": row_clean.get("date", "N/A"),
+                "generator_name": row_clean.get("generator name", "N/A"),
+                "generator_id": row_clean.get("generator id", "N/A"),
+                "qr_code": row_clean.get("pdf link", "#")
+            })
+        
+        return all_history[::-1]
+    except Exception as e:
+        logger.error(f"Admin fetch failed: {e}")
+        return []

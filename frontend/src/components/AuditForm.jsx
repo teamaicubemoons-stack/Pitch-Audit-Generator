@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Building2, Globe, Target, Briefcase, FileText, Settings, Users, ChevronDown, ChevronUp } from 'lucide-react';
+import { Building2, Globe, Target, Briefcase, FileText, Settings, Users, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 
 const INDUSTRIES = ["", "Healthcare", "Education", "E-commerce", "FinTech", "Real Estate", "SaaS/Startup", "Manufacturing", "Other"];
 const SIZES = ["", "1-10", "11-50", "51-200", "200+", "Unknown"];
@@ -28,54 +28,48 @@ export default function AuditForm({ onSubmit, isSubmitting }) {
 
   const SectionHeader = ({ id, title, icon: Icon }) => (
     <div 
-      className={`flex items-center justify-between p-4 cursor-pointer transition-colors ${expandedSection === id ? 'bg-brand-dark text-white rounded-t-xl' : 'bg-gray-50 hover:bg-gray-100 rounded-xl'}`}
+      className={`flex items-center justify-between p-4 cursor-pointer transition-all duration-300 ${expandedSection === id ? 'bg-blue-50/50 border-blue-100 rounded-t-[1.5rem]' : 'bg-white hover:bg-slate-50 rounded-2xl border border-slate-100 shadow-sm'}`}
       onClick={() => setExpandedSection(expandedSection === id ? null : id)}
     >
-      <div className="flex items-center gap-3">
-        <Icon size={20} className={expandedSection === id ? 'text-brand-orange' : 'text-gray-500'} />
-        <h3 className="font-semibold text-lg">{title}</h3>
+      <div className="flex items-center gap-4">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${expandedSection === id ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-50 text-slate-400 border border-slate-100'}`}>
+          <Icon size={18} />
+        </div>
+        <h3 className={`font-bold text-base tracking-tight transition-colors ${expandedSection === id ? 'text-blue-600' : 'text-slate-700'}`}>{title}</h3>
       </div>
-      {expandedSection === id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+      <div className={`w-7 h-7 rounded-full flex items-center justify-center border transition-all duration-300 ${expandedSection === id ? 'rotate-180 bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-200 text-slate-400'}`}>
+        <ChevronDown size={14} />
+      </div>
     </div>
   );
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
+    <form onSubmit={handleSubmit} className="space-y-3">
       
       {/* SECTION A */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <SectionHeader id="A" title="Section A: Company Information" icon={Building2} />
+      <div className="rounded-[1.5rem] overflow-hidden">
+        <SectionHeader id="A" title="Company Information" icon={Building2} />
         <AnimatePresence>
           {expandedSection === 'A' && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden bg-white border-x border-b border-slate-100 rounded-b-[1.5rem]">
               <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
-                  <input type="text" name="company_name" value={formData.company_name} onChange={handleChange} className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent transition-all" placeholder="e.g. ABC Pharma" />
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Company Name</label>
+                  <input type="text" name="company_name" value={formData.company_name} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none font-medium text-sm" placeholder="e.g. Cubemoons AI" />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Website URL</label>
-                  <input type="url" name="website_url" value={formData.website_url} onChange={handleChange} className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent transition-all" placeholder="https://..." />
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Website URL</label>
+                  <input type="url" name="website_url" value={formData.website_url} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none font-medium text-sm" placeholder="https://..." />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Industry</label>
-                  <select name="industry" value={formData.industry} onChange={handleChange} className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent transition-all">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Industry</label>
+                  <select name="industry" value={formData.industry} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none font-medium text-sm">
                     {INDUSTRIES.map(i => <option key={i} value={i}>{i || "Select Industry"}</option>)}
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                  <input type="text" name="location" value={formData.location} onChange={handleChange} className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent transition-all" placeholder="e.g. Mumbai, India" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Company Size</label>
-                  <select name="company_size" value={formData.company_size} onChange={handleChange} className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent transition-all">
-                    {SIZES.map(s => <option key={s} value={s}>{s || "Select Size"}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Social Media Handles</label>
-                  <input type="text" name="social_media_handles" value={formData.social_media_handles} onChange={handleChange} className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple focus:border-transparent transition-all" placeholder="@instagram, etc" />
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Location</label>
+                  <input type="text" name="location" value={formData.location} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none font-medium text-sm" placeholder="e.g. Remote / Mumbai" />
                 </div>
               </div>
             </motion.div>
@@ -84,31 +78,31 @@ export default function AuditForm({ onSubmit, isSubmitting }) {
       </div>
 
       {/* SECTION B */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <SectionHeader id="B" title="Section B: Requirements & Pain Points" icon={Target} />
+      <div className="rounded-[1.5rem] overflow-hidden">
+        <SectionHeader id="B" title="Strategy & Pain Points" icon={Target} />
         <AnimatePresence>
           {expandedSection === 'B' && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden bg-white border-x border-b border-slate-100 rounded-b-[1.5rem]">
               <div className="p-6 space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Pain Points (What's hurting their business?)</label>
-                  <textarea name="pain_points" value={formData.pain_points} onChange={handleChange} rows={3} className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple transition-all" placeholder="e.g. Manual data entry, low website conversions..." />
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Critical Pain Points</label>
+                  <textarea name="pain_points" value={formData.pain_points} onChange={handleChange} rows={2} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium text-sm" placeholder="What's hurting their growth?" />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Requirements (What do they want?)</label>
-                  <textarea name="requirements" value={formData.requirements} onChange={handleChange} rows={3} className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple transition-all" placeholder="e.g. An automated patient booking system..." />
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Core Requirements</label>
+                  <textarea name="requirements" value={formData.requirements} onChange={handleChange} rows={2} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium text-sm" placeholder="What results do they expect?" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Budget Range</label>
-                    <select name="budget_range" value={formData.budget_range} onChange={handleChange} className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple transition-all">
-                      {BUDGETS.map(b => <option key={b} value={b}>{b || "Select Budget"}</option>)}
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Budget Allocation</label>
+                    <select name="budget_range" value={formData.budget_range} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 transition-all font-medium outline-none text-sm">
+                      {BUDGETS.map(b => <option key={b} value={b}>{b || "Select Budget Range"}</option>)}
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Deal Type</label>
-                    <select name="deal_type" value={formData.deal_type} onChange={handleChange} className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple transition-all">
-                      {DEAL_TYPES.map(d => <option key={d} value={d}>{d || "Select Deal Type"}</option>)}
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Deal Structure</label>
+                    <select name="deal_type" value={formData.deal_type} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 transition-all font-medium outline-none text-sm">
+                      {DEAL_TYPES.map(d => <option key={d} value={d}>{d || "Select Engagement Type"}</option>)}
                     </select>
                   </div>
                 </div>
@@ -119,28 +113,26 @@ export default function AuditForm({ onSubmit, isSubmitting }) {
       </div>
 
       {/* SECTION C */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <SectionHeader id="C" title="Section C: Additional Context" icon={FileText} />
+      <div className="rounded-[1.5rem] overflow-hidden">
+        <SectionHeader id="C" title="Additional Context" icon={FileText} />
         <AnimatePresence>
           {expandedSection === 'C' && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden bg-white border-x border-b border-slate-100 rounded-b-[1.5rem]">
               <div className="p-6 space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Competitors</label>
-                  <input type="text" name="competitors" value={formData.competitors} onChange={handleChange} className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple transition-all" placeholder="Comma separated names" />
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Industry Competitors</label>
+                  <input type="text" name="competitors" value={formData.competitors} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 transition-all font-medium outline-none text-sm" placeholder="e.g. Competitor A, Competitor B" />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Proposed Solution (Broad idea)</label>
-                  <textarea name="proposed_solution" value={formData.proposed_solution} onChange={handleChange} rows={3} className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple transition-all" placeholder="e.g. Build a custom React dashboard..." />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Meeting Notes</label>
-                  <textarea name="meeting_notes" value={formData.meeting_notes} onChange={handleChange} rows={3} className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-purple transition-all" placeholder="Dump raw notes here..." />
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Meeting Insights</label>
+                  <textarea name="meeting_notes" value={formData.meeting_notes} onChange={handleChange} rows={2} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all font-medium text-sm" placeholder="Key takeaways..." />
                 </div>
                 
-                <div className="bg-gray-50 p-4 rounded-lg flex items-center gap-3 border border-gray-200">
-                  <input type="checkbox" id="generate_flowchart" name="generate_flowchart" checked={formData.generate_flowchart} onChange={handleChange} className="w-5 h-5 text-brand-purple rounded border-gray-300 focus:ring-brand-purple" />
-                  <label htmlFor="generate_flowchart" className="text-gray-700 font-medium">Auto-generate Architecture Flowchart</label>
+                <div className="bg-blue-50/50 p-4 rounded-2xl flex items-center gap-4 border border-blue-100">
+                  <div className="relative flex items-center">
+                    <input type="checkbox" id="generate_flowchart" name="generate_flowchart" checked={formData.generate_flowchart} onChange={handleChange} className="w-5 h-5 text-blue-600 rounded-lg border-slate-300 focus:ring-blue-500 transition-all" />
+                  </div>
+                  <label htmlFor="generate_flowchart" className="text-slate-700 font-bold text-xs">Include Intelligent Architecture Flowchart</label>
                 </div>
               </div>
             </motion.div>
@@ -148,13 +140,23 @@ export default function AuditForm({ onSubmit, isSubmitting }) {
         </AnimatePresence>
       </div>
 
-      <div className="pt-4 pb-12">
+      <div className="pt-8">
         <button 
           type="submit" 
           disabled={isSubmitting}
-          className={`w-full py-4 rounded-xl text-lg font-bold text-white shadow-lg transition-all ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-brand-orange to-brand-purple hover:opacity-90 transform hover:-translate-y-1'}`}
+          className={`w-full py-5 rounded-2xl text-sm font-black text-white shadow-xl transition-all duration-300 flex items-center justify-center gap-3 uppercase tracking-[0.2em] ${isSubmitting ? 'bg-slate-300 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-blue-500/40 hover:-translate-y-1 active:scale-95'}`}
         >
-          {isSubmitting ? 'Generating Audit...' : 'Generate Pitch Audit Document'}
+          {isSubmitting ? (
+            <>
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <span>Analyzing...</span>
+            </>
+          ) : (
+            <>
+              <Sparkles size={18} />
+              <span>Generate Audit Report</span>
+            </>
+          )}
         </button>
       </div>
     </form>

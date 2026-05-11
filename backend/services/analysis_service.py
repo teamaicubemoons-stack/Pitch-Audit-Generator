@@ -157,8 +157,8 @@ async def generate_flowchart(proposed_solution_section: dict) -> dict:
 def has_system_solution(audit_content: dict) -> bool:
     """Check if section 5 has enough content to warrant a flowchart."""
     s5 = audit_content.get("section_5_proposed_solution", {})
-    components = s5.get("solution_components", [])
-    return len(components) >= 2
+    features = s5.get("key_features", [])
+    return len(features) >= 2
 
 
 async def generate_pdf_html(audit_data: dict) -> str:

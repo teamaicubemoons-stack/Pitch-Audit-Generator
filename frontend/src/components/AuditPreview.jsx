@@ -5,7 +5,7 @@ import jsPDF from 'jspdf';
 import VisualFlowchart from './VisualFlowchart';
 import {
   Download, ChevronDown, ChevronUp, Star, Zap, Target,
-  TrendingUp, Shield, Users, Clock, CheckCircle2, AlertTriangle, AlertCircle, ArrowRight, Printer, Loader2, Sparkles, Cpu, Briefcase, Globe, Mail, Phone, Calendar
+  TrendingUp, Shield, Users, Clock, CheckCircle2, AlertTriangle, AlertCircle, ArrowRight, Printer, Loader2, Sparkles, Cpu, Briefcase, Globe, Mail, Phone, Calendar, Instagram, MapPin, ChevronLeft, ChevronRight
 } from 'lucide-react';
 
 const Section = ({ id, icon: Icon, title, accent, children, forceOpen }) => {
@@ -45,8 +45,8 @@ const priorityConfig = {
   Medium:   { color: '#0066FF', bg: '#F5F3FF', Icon: Target },
 };
 
-export default function AuditPreview({ auditData }) {
-  const { audit_sections: a, flowchart_data } = auditData;
+export default function AuditPreview({ auditData, pdfUrl }) {
+  const { audit_sections: a, flowchart_data } = auditData || {};
   const auditRef = useRef(null);
   const [isExporting, setIsExporting] = useState(false);
   const [forceOpenAll, setForceOpenAll] = useState(false);
@@ -59,277 +59,429 @@ export default function AuditPreview({ auditData }) {
   const s3    = a.section_3_current_state_analysis || {};
   const s4    = a.section_4_problem_identification || {};
   const s5    = a.section_5_proposed_solution || {};
-  const s6    = a.section_6_why_this_solution_works || {};
-  const s7    = a.section_7_implementation_roadmap || {};
-  const s8    = a.section_8_roi_and_impact || {};
-  const s9    = a.section_9_why_cubemoons || {};
-  const s10   = a.section_10_next_steps || {};
+  const s6    = a.section_6_implementation_roadmap || {};
+  const s7    = a.section_7_roi_and_impact || {};
+  const s8    = a.section_8_call_to_action || {};
 
-  const handleDownloadPDF = async () => {
-    if (!auditRef.current) return;
-    setIsExporting(true);
+  const handleExportPDF = async () => {
     setForceOpenAll(true);
+    setIsExporting(true);
     
-    window.scrollTo(0, document.body.scrollHeight);
-    await new Promise(resolve => setTimeout(resolve, 800));
     window.scrollTo(0, 0);
 
-    await new Promise(resolve => setTimeout(resolve, 2500));
+    setTimeout(async () => {
+      try {
+        const element = document.getElementById('audit-report-content');
+        const canvas = await html2canvas(element, {
+          scale: 2, // 2x is often more stable for layout than 3x
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#F8FAFC',
+          windowWidth: 1024,
+          onclone: (doc) => {
+            const el = doc.getElementById('audit-report-content');
+            if (el) {
+              el.style.width = '1024px';
+              el.style.margin = '0';
+              el.style.padding = '0';
+              el.style.borderRadius = '0';
+              el.style.boxShadow = 'none';
+              el.style.backgroundColor = '#F8FAFC';
+            }
+            
+            // Fix proportions for the cover slide
+            const cover = doc.querySelector('.branded-cover-slide');
+            if (cover) {
+               cover.style.height = '576px'; // Fixed 16:9 height for 1024px width
+               cover.style.width = '1024px';
+               cover.style.borderRadius = '0';
+            }
 
-    try {
-      const element = auditRef.current;
-      const originalWidth = element.offsetWidth;
-      const fullHeight = element.scrollHeight + 800; 
+            const watermarks = doc.querySelectorAll('.watermark-text');
+            watermarks.forEach(w => {
+               w.style.fontSize = '10rem'; // Restore original large size
+               w.style.display = 'flex';
+               w.style.alignItems = 'center';
+               w.style.justifyContent = 'center';
+            });
 
-      const canvas = await html2canvas(element, {
-        scale: 1.8, 
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#F8FAFC",
-        logging: false,
-        width: originalWidth,
-        height: fullHeight,
-        windowWidth: originalWidth,
-        windowHeight: fullHeight + 1000,
-        scrollX: 0,
-        scrollY: 0,
-        x: 0,
-        y: 0,
-        onclone: (clonedDoc) => {
-          const cloneContainer = clonedDoc.querySelector('.audit-capture-container');
-          if (cloneContainer) {
-            cloneContainer.style.width = `${originalWidth}px`;
-            cloneContainer.style.height = `${fullHeight}px`;
-            cloneContainer.style.paddingBottom = '400px';
-            cloneContainer.style.borderRadius = '0';
-            cloneContainer.style.border = 'none';
-            cloneContainer.style.overflow = 'visible';
+            const hide = doc.getElementsByClassName('export-hide');
+            for (let h of hide) h.style.display = 'none';
           }
-          clonedDoc.querySelectorAll('.export-hide').forEach(el => el.style.display = 'none');
-        }
-      });
+        });
+        
+        const imgData = canvas.toDataURL('image/png', 1.0);
+        const pdfWidth = 210;
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: [pdfWidth, pdfHeight],
+          compress: true
+        });
 
-      const imgData = canvas.toDataURL("image/jpeg", 0.9);
-      const pdfWidth = 210;
-      const pdfHeight = ((canvas.height * pdfWidth) / canvas.width) + 10; 
-
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: [pdfWidth, pdfHeight]
-      });
-
-      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight - 10, undefined, 'FAST');
-      pdf.save(`Strategic_Audit_${meta.client_name?.replace(/\s+/g, '_')}.pdf`);
-      
-    } catch (error) {
-      console.error("PDF Export Error:", error);
-    } finally {
-      setIsExporting(false);
-      setForceOpenAll(false);
-    }
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+        pdf.save(`Cubemoons_Audit_${meta.client_name || 'Report'}.pdf`);
+      } catch (err) {
+        console.error("Export failed:", err);
+      } finally {
+        setForceOpenAll(false);
+        setIsExporting(false);
+      }
+    }, 1500);
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4 font-['Inter']">
-      
-      {/* EXPORT FAB */}
-      <div className="fixed bottom-8 right-8 z-[100] export-hide">
-        <button
-          onClick={handleDownloadPDF}
+    <div className="max-w-5xl mx-auto py-12 px-6">
+      <div className="flex justify-between items-center mb-10">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Pitch Audit Report</h1>
+          <p className="text-sm font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+            <Shield size={14} className="text-blue-500" />
+            Strategic Security Protocol
+          </p>
+        </div>
+        <button 
+          onClick={handleExportPDF}
           disabled={isExporting}
-          className={`group flex items-center gap-2 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-2xl border-2 ${
-            isExporting ? 'bg-slate-900 text-white cursor-wait' : 'bg-white text-slate-900 hover:bg-[#0066FF] hover:text-white border-slate-900'
-          }`}
+          className="flex items-center gap-3 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold shadow-xl shadow-slate-200 hover:bg-slate-800 transform hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
         >
-          {isExporting ? <><Loader2 className="animate-spin" size={14} /> EXPORTING...</> : <><Download size={14} /> EXPORT OFFICIAL PDF</>}
+          {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Printer size={18} />}
+          {isExporting ? 'Preparing Document...' : 'Export Official PDF'}
         </button>
       </div>
 
-      <div ref={auditRef} className="audit-capture-container space-y-10 bg-slate-50 relative rounded-xl overflow-visible border border-slate-100 pb-20">
-        
-        {/* BRAND BLOBS */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
-           <div className="absolute top-[-5%] right-[-5%] w-[400px] h-[400px] bg-blue-400/30 rounded-full blur-[100px]" />
-           <div className="absolute bottom-[10%] left-[-5%] w-[350px] h-[350px] bg-cyan-300/20 rounded-full blur-[80px]" />
-        </div>
+      <div id="audit-report-content" ref={auditRef} className="space-y-8">
+        {/* BRANDED COVER PAGE - PPT SLIDE STYLE */}
+        <div className="branded-cover-slide bg-white rounded-3xl overflow-hidden shadow-2xl relative aspect-video flex flex-col border border-slate-100 mb-16 mx-auto w-full max-w-6xl">
+           {/* Top Section (60%) */}
+           <div className="relative h-[60%] flex flex-col pt-10 px-12 overflow-hidden">
+              {/* Header */}
+              <div className="flex justify-between items-start relative z-20 w-full mb-auto">
+                 <div className="flex items-center gap-3">
+                    <img src="/logo.png" alt="Logo" className="h-10 w-auto object-contain" />
+                 </div>
+                 <div className="text-[#1E56A0] font-black text-[10px] tracking-[0.3em] uppercase">
+                    {meta.industry || "Strategic Audit"}
+                 </div>
+              </div>
 
-        {/* COVER - BRANDED */}
-        <div className="bg-[#0F172A] rounded-xl overflow-hidden shadow-2xl relative border-b-8 border-[#0066FF]">
-          <div className="relative px-12 py-24">
-            <div className="max-w-2xl">
-              <div className="flex items-center gap-4 mb-12">
-                <div className="p-4 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl">
-                   <img 
-                    src="/logo.png" 
-                    alt="Cubemoons Logo" 
-                    className="w-16 h-16 object-contain" 
-                    onError={(e) => { e.target.src = "https://cubemoons.com/assets/logo/cubemoons-favicon.svg" }}
-                   />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-white font-black text-xl tracking-[0.2em] uppercase">Cubemoons</span>
-                  <span className="text-blue-500 font-bold text-[10px] tracking-widest uppercase">Intelligence Unit</span>
-                </div>
+              {/* Massive background text */}
+              <div className="absolute inset-0 flex items-start justify-center pt-24 opacity-[0.18] pointer-events-none select-none">
+                 <span className="watermark-text text-[10rem] font-black tracking-[-0.02em] uppercase leading-none text-slate-400">CUBEMOONS</span>
               </div>
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-full text-[#00D1FF] text-[10px] font-black uppercase tracking-[0.3em] mb-10">Strategic Intelligence Audit</div>
-              <h1 className="text-4xl lg:text-6xl font-black text-white mb-8 leading-tight tracking-tight">{meta.client_name || 'Client Audit'}</h1>
-              <p className="text-xl text-slate-400 font-medium leading-relaxed max-w-xl mb-14 opacity-90 italic border-l-4 border-[#0066FF] pl-8">{s1.headline}</p>
-              <div className="grid grid-cols-3 gap-8 pt-12 border-t border-white/5">
-                 <div><p className="text-slate-500 font-black uppercase tracking-widest mb-2 text-[10px]">Industry</p><p className="text-white font-bold text-base">{meta.industry}</p></div>
-                 <div><p className="text-slate-500 font-black uppercase tracking-widest mb-2 text-[10px]">Audit Cycle</p><p className="text-white font-bold text-base">{meta.audit_date}</p></div>
-                 <div><p className="text-slate-500 font-black uppercase tracking-widest mb-2 text-[10px]">Status</p><p className="text-[#00D1FF] font-black text-base uppercase tracking-widest">Authenticated</p></div>
+              
+              {/* Main Title (Company Name) */}
+              <div className="relative z-10 flex-1 flex flex-col items-center justify-center -mt-16">
+                 <h1 className="text-7xl md:text-8xl font-black tracking-tight uppercase text-[#1E56A0] leading-none text-center drop-shadow-sm">
+                    {meta.client_name}
+                 </h1>
+                 <div className="h-1.5 w-24 bg-[#1E56A0]/20 rounded-full mt-6"></div>
               </div>
-            </div>
-          </div>
-        </div>
+           </div>
 
-        {/* 01: EXECUTIVE SUMMARY */}
-        <div className="bg-white rounded-xl p-10 lg:p-16 border border-slate-200 shadow-sm relative overflow-hidden">
-           <div className="absolute top-0 left-0 w-2 h-full bg-[#0066FF]" />
-           <div className="max-w-3xl space-y-8">
-              <div className="flex items-center gap-4">
-                 <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#0066FF] shadow-sm"><Target size={20} /></div>
-                 <h2 className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em]">Executive Summary</h2>
+           {/* Transition Card */}
+           <div className="absolute top-[60%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 w-[94%]">
+              <div className="bg-white rounded-2xl p-8 shadow-2xl shadow-[#1E56A0]/10 border border-slate-50 text-center">
+                 <p className="text-[14px] font-medium text-slate-500 leading-relaxed max-w-3xl mx-auto mb-6">
+                    Cubemoons is a creative and AI-driven company shaping <br /> scalable digital systems and brand experiences.
+                 </p>
+                 <div className="flex items-center justify-between px-12 pt-6 border-t border-slate-50">
+                    <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest flex gap-2">
+                       ID: <span className="text-[#1E56A0]">{meta.report_id}</span>
+                    </div>
+                    <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest flex gap-2">
+                       DATE: <span className="text-[#1E56A0]">{meta.audit_date}</span>
+                    </div>
+                    <div className="text-[10px] font-black text-red-500 bg-red-50 px-3 py-1 rounded-full border border-red-100">
+                       CRITICAL GAPS
+                    </div>
+                 </div>
               </div>
-              <blockquote className="text-3xl lg:text-4xl font-black text-slate-900 leading-tight tracking-tight">"{s1.headline}"</blockquote>
-              <p className="text-lg text-slate-600 font-medium leading-relaxed italic">{s1.overview}</p>
-              <div className="grid grid-cols-4 gap-6 pt-10 border-t border-slate-50">
-                 {s1.key_metrics?.slice(0,4).map((m, i) => (
-                   <div key={i} className="group">
-                      <div className="text-2xl font-black text-slate-900 group-hover:text-[#0066FF] transition-colors">{m.value}</div>
-                      <div className="text-[9px] font-black text-blue-500 uppercase tracking-widest">{m.label}</div>
-                   </div>
-                 ))}
+           </div>
+
+           {/* Bottom Section (40%) */}
+           <div className="h-[40%] bg-gradient-to-br from-[#1E56A0] to-[#163172] flex flex-col justify-end pb-10 px-12 relative">
+              {/* Decorative line pattern */}
+              <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
+              
+              <div className="flex flex-col items-center relative z-10 w-full">
+                 <div className="bg-white text-[#1E56A0] px-10 py-2.5 rounded-full font-black text-[10px] tracking-[0.3em] uppercase mb-12 shadow-xl">
+                    Creative. Intelligent. Scalable.
+                 </div>
+
+                 {/* Contact Bar */}
+                 <div className="w-full pt-10 border-t border-white/20 grid grid-cols-4 gap-4 text-[8px] font-black tracking-[0.2em] uppercase text-white text-center">
+                    <div className="opacity-100">@cube.moons</div>
+                    <div className="opacity-100">www.cubemoons.com</div>
+                    <div className="opacity-100">Raipur, Chhattisgarh</div>
+                    <div className="opacity-100">marketing@cubemoons.com</div>
+                 </div>
               </div>
            </div>
         </div>
 
-        {/* 02: POSITIONING */}
-        <Section id="01" icon={Users} title="Market Maturity Assessment" accent="#0066FF" forceOpen={forceOpenAll}>
-           <div className="grid lg:grid-cols-2 gap-10 py-2">
-              <div className="space-y-8">
-                 <div><h3 className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-4">Strategic Context</h3><p className="text-lg font-bold text-slate-800 leading-relaxed">{s2.about}</p></div>
-                 <div className="p-8 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner"><h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Value Extraction Model</h3><p className="text-base font-semibold text-slate-600 leading-relaxed">{s2.business_model}</p></div>
+        {/* SECTION 1: EXECUTIVE SUMMARY */}
+        <Section id="01" icon={Target} title="Executive Summary" accent="#0066FF" forceOpen={forceOpenAll}>
+           <div className="space-y-6">
+             <p className="text-lg font-bold text-slate-800 leading-relaxed italic border-l-4 border-blue-500 pl-6">
+               "{s1.overview}"
+             </p>
+             <div className="grid grid-cols-3 gap-4 mt-8">
+                {s1.key_takeaways?.map((t, i) => (
+                  <div key={i} className="bg-blue-50/50 p-5 rounded-xl border border-blue-100/50">
+                    <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-blue-600 shadow-sm mb-3">
+                       <Zap size={14} />
+                    </div>
+                    <div className="text-xs font-black text-slate-400 uppercase mb-1 tracking-wider">Takeaway {i+1}</div>
+                    <div className="text-sm font-bold text-slate-800">{t}</div>
+                  </div>
+                ))}
+             </div>
+           </div>
+        </Section>
+
+        {/* SECTION 2: COMPANY OVERVIEW */}
+        <Section id="02" icon={Briefcase} title="Company Overview" accent="#0066FF" forceOpen={forceOpenAll}>
+           <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-4">
+                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Business Context</h3>
+                 <p className="text-sm font-bold text-slate-600 leading-relaxed">{s2.about}</p>
+                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <div className="text-[10px] font-black text-blue-500 uppercase mb-1">Business Model</div>
+                    <p className="text-sm font-bold text-slate-800">{s2.business_model}</p>
+                 </div>
               </div>
-              <div className="space-y-6">
-                 <div className="bg-[#0F172A] rounded-2xl p-10 text-white shadow-2xl relative border-t-4 border-[#00D1FF]">
-                    <div className="flex items-center justify-between mb-8">
-                       <h3 className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em]">Digital IQ Score</h3>
-                       <div className="text-4xl font-black text-[#00D1FF]">{s2.digital_maturity_score}<span className="text-sm text-slate-500">/10</span></div>
+              <div className="bg-slate-900 rounded-2xl p-6 text-white flex flex-col justify-between">
+                 <div>
+                    <h3 className="text-xs font-black text-blue-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                      <Target size={14} />
+                      Digital Maturity Score
+                    </h3>
+                    <div className="flex items-end gap-2 mb-4">
+                       <span className="text-5xl font-black text-white">{s2.digital_maturity_score}</span>
                     </div>
-                    <div className="space-y-4">
-                       <p className="text-sm font-bold text-blue-50 italic leading-relaxed border-l-4 border-[#00D1FF] pl-6 py-2 bg-white/5 rounded-r-xl">{s2.maturity_assessment}</p>
-                    </div>
+                 </div>
+                 <p className="text-sm font-medium text-slate-400 italic leading-relaxed">"{s2.maturity_assessment}"</p>
+              </div>
+           </div>
+        </Section>
+
+        {/* SECTION 3: CURRENT STATE */}
+        <Section id="03" icon={TrendingUp} title="Current State Analysis" accent="#0066FF" forceOpen={forceOpenAll}>
+           <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Core Challenges</h3>
+                {s3.current_challenges?.map((c, i) => (
+                  <div key={i} className="flex gap-3 items-start p-4 bg-slate-50 rounded-xl border border-slate-100">
+                     <AlertTriangle size={16} className="text-amber-500 mt-1 shrink-0" />
+                     <span className="text-sm font-bold text-slate-700">{c}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="bg-slate-900 rounded-2xl p-6 text-white">
+                 <h3 className="text-xs font-black text-blue-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                   <Clock size={14} />
+                   Operational Inefficiencies
+                 </h3>
+                 <div className="space-y-6">
+                    {s3.inefficiencies?.map((inf, i) => (
+                      <div key={i} className="group">
+                        <div className="flex justify-between mb-2">
+                           <span className="text-[11px] font-bold text-slate-400">{inf.area}</span>
+                           <span className="text-[10px] font-black text-blue-500">OPTIMIZABLE</span>
+                        </div>
+                        <p className="text-sm font-bold text-slate-200">{inf.impact}</p>
+                      </div>
+                    ))}
                  </div>
               </div>
            </div>
         </Section>
 
-        {/* SWOT */}
-        <Section id="02" icon={Shield} title="Strategic Risk & Opportunity Matrix" accent="#10B981" forceOpen={forceOpenAll}>
-           <div className="grid md:grid-cols-2 gap-6 py-2">
-              {[
-                { key: 'strengths',    label: 'Strengths',     color: '#0066FF', bg: '#F0F7FF' },
-                { key: 'weaknesses',   label: 'Weaknesses',    color: '#EF4444', bg: '#FEF2F2' },
-                { key: 'opportunities',label: 'Opportunities', color: '#00D1FF', bg: '#F0FDFF' },
-                { key: 'threats',      label: 'Threats',       color: '#F59E0B', bg: '#FFFBEB' },
-              ].map(({ key, label, color, bg }) => (
-                <div key={key} className="p-8 border border-slate-100 rounded-2xl shadow-sm" style={{ backgroundColor: bg }}>
-                   <div className="flex items-center gap-3 mb-6">
-                      <div className="w-2 h-2 rounded-full shadow-sm" style={{ backgroundColor: color }} />
-                      <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em]">{label}</h4>
+        {/* SECTION 4: GAP IDENTIFICATION */}
+        <Section id="04" icon={AlertCircle} title="Strategic Gap Analysis" accent="#DC2626" forceOpen={forceOpenAll}>
+           <div className="space-y-6">
+              {s4.gaps?.map((gap, i) => {
+                const config = priorityConfig[gap.priority] || priorityConfig.Medium;
+                return (
+                  <div key={i} className="group relative bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-xl hover:shadow-slate-100 transition-all duration-500">
+                    <div className="flex flex-row gap-6">
+                       <div className="md:w-1/3 border-b md:border-b-0 md:border-r border-slate-100 pb-6 md:pb-0 md:pr-6">
+                          <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md text-[10px] font-black uppercase mb-4" style={{ backgroundColor: config.bg, color: config.color }}>
+                             <config.Icon size={12} />
+                             {gap.priority} Priority
+                          </div>
+                          <h4 className="text-lg font-black text-slate-900 mb-2 leading-tight">{gap.gap_name}</h4>
+                       </div>
+                       <div className="md:w-2/3 space-y-4">
+                          <p className="text-sm font-bold text-slate-600 leading-relaxed">{gap.description}</p>
+                          <div className="flex items-center gap-3 p-3 bg-red-50 rounded-xl">
+                             <div className="text-red-600 font-black text-[10px] uppercase shrink-0">Business Risk:</div>
+                             <p className="text-[11px] font-bold text-red-800 italic">{gap.consequence}</p>
+                          </div>
+                       </div>
+                    </div>
+                  </div>
+                );
+              })}
+           </div>
+        </Section>
+
+        {/* SECTION 5: PROPOSED SOLUTION */}
+        <Section id="05" icon={Zap} title="The Cubemoons Solution" accent="#0066FF" forceOpen={forceOpenAll}>
+           <div className="space-y-8">
+              <div className="bg-blue-600 rounded-2xl p-8 text-white relative overflow-hidden">
+                <div className="absolute -right-10 -top-10 opacity-10">
+                   <Zap size={200} />
+                </div>
+                <div className="relative z-10">
+                  <h3 className="text-2xl font-black mb-4 tracking-tight">{s5.solution_name}</h3>
+                  <p className="text-lg font-bold text-blue-100 leading-relaxed mb-8">{s5.high_level_concept}</p>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                     {s5.key_features?.map((f, i) => (
+                       <div key={i} className="flex gap-4 items-center p-4 bg-white/10 rounded-xl border border-white/10 backdrop-blur-md">
+                          <div className="w-8 h-8 rounded-full bg-blue-400 flex items-center justify-center shrink-0">
+                             <CheckCircle2 size={16} />
+                          </div>
+                          <span className="text-sm font-bold">{f}</span>
+                       </div>
+                     ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* VISUAL FLOWCHART */}
+              {flowchart_data && (
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-8">
+                   <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-8 text-center flex items-center justify-center gap-3">
+                     <div className="h-px w-8 bg-slate-200" />
+                     Implementation Workflow
+                     <div className="h-px w-8 bg-slate-200" />
+                   </h3>
+                   <VisualFlowchart data={flowchart_data} />
+                </div>
+              )}
+           </div>
+        </Section>
+
+        {/* SECTION 6: IMPLEMENTATION ROADMAP */}
+        <Section id="06" icon={Calendar} title="Implementation Roadmap" accent="#0066FF" forceOpen={forceOpenAll}>
+           <div className="space-y-8 mt-4">
+              {s6.phases?.map((phase, i) => (
+                <div key={i} className="flex gap-6 group relative">
+                   <div className="flex flex-col items-center">
+                      <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black shadow-lg z-10">
+                         {phase.phase_number}
+                      </div>
+                      {i < s6.phases.length - 1 && <div className="w-px h-full bg-slate-100 absolute top-10 left-[19px]"></div>}
                    </div>
-                   <ul className="space-y-3">
-                     {(s3[key] || []).map((item, i) => ( <li key={i} className="flex items-start gap-3 text-xs font-bold text-slate-700 leading-snug"><CheckCircle2 size={14} className="mt-0.5 flex-shrink-0" style={{ color: color }} /> {item}</li> ))}
-                   </ul>
+                   <div className="flex-1 pb-10">
+                      <div className="flex justify-between items-center mb-4">
+                         <h4 className="text-lg font-black text-slate-900">{phase.phase_name}</h4>
+                         <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                            <Clock size={12} />
+                            {phase.duration}
+                         </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-6">
+                         <div className="space-y-3">
+                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Strategic Deliverables</div>
+                            <div className="space-y-2">
+                               {phase.deliverables?.map((d, di) => (
+                                 <div key={di} className="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl shadow-sm">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                                    <span className="text-xs font-bold text-slate-700">{d}</span>
+                                 </div>
+                               ))}
+                            </div>
+                         </div>
+                         <div className="p-5 bg-blue-600 rounded-2xl text-white relative overflow-hidden">
+                            <div className="absolute right-0 bottom-0 opacity-10">
+                               <Target size={80} />
+                            </div>
+                            <div className="text-[10px] font-black text-blue-200 uppercase mb-2 tracking-widest">Phase Milestone</div>
+                            <p className="text-sm font-black leading-tight">{phase.milestone}</p>
+                         </div>
+                      </div>
+                   </div>
                 </div>
               ))}
            </div>
         </Section>
 
-        {/* SOLUTION */}
-        <Section id="04" icon={Zap} title="Engineering & Intervention Blueprint" accent="#0066FF" forceOpen={forceOpenAll}>
-           <div className="py-2 space-y-8">
-              <div className="bg-[#0F172A] rounded-2xl p-10 text-white relative shadow-2xl border-l-8 border-[#0066FF]">
-                 <div className="flex items-center gap-2 mb-6"><Sparkles size={16} className="text-[#00D1FF] animate-pulse" /><h3 className="text-[10px] font-black text-blue-400 uppercase tracking-[0.4em]">Proprietary Cubemoons Solution</h3></div>
-                 <p className="text-2xl font-black leading-tight text-white/95">{s5.solution_overview}</p>
-              </div>
-              <div className="grid lg:grid-cols-2 gap-6">
-                 {(s5.solution_components || []).map((c, i) => (
-                   <div key={i} className="bg-white border border-slate-100 rounded-2xl p-8 shadow-sm flex flex-col justify-between hover:border-blue-500/30 transition-all group">
-                      <div>
-                         <div className="flex justify-between items-start mb-6"><h4 className="text-lg font-black text-slate-900 tracking-tight group-hover:text-blue-600 transition-colors">{c.component_name}</h4><span className="text-[9px] font-black tracking-[0.2em] uppercase bg-blue-50 text-[#0066FF] px-3 py-1 rounded-full border border-blue-100">{c.cubemoons_service}</span></div>
-                         <p className="text-sm font-bold text-slate-600 mb-8 leading-relaxed italic border-l-2 border-slate-100 pl-4">{c.what_we_build}</p>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-4 text-[9px] font-black tracking-widest pt-6 border-t border-slate-50 uppercase">
-                        <span className="text-slate-400">STACK: <span className="text-slate-900">{c.technology}</span></span>
-                        <span className="text-blue-500 font-black">ROI: {c.solves_problem}</span>
-                      </div>
-                   </div>
-                 ))}
-              </div>
+        {/* SECTION 7: ROI */}
+        <Section id="07" icon={Sparkles} title="Anticipated Impact & ROI" accent="#0066FF" forceOpen={forceOpenAll}>
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {s7.metrics?.map((m, i) => (
+                <div key={i} className="bg-white border border-slate-200 p-6 rounded-2xl text-center group hover:border-blue-500 transition-colors">
+                   <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{m.area}</div>
+                   <div className="text-3xl font-black text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">{m.improvement}</div>
+                   <p className="text-[11px] font-bold text-slate-500 italic">{m.timeframe}</p>
+                </div>
+              ))}
            </div>
         </Section>
+        
+        {/* SECTION 08: CALL TO ACTION */}
+        <div className="bg-gradient-to-br from-blue-500 to-blue-700 rounded-[2.5rem] p-12 text-white text-center relative overflow-hidden shadow-2xl shadow-blue-100 mt-12 min-h-[400px] flex flex-col justify-center">
+           {/* Decorative three dots */}
+           <div className="absolute top-10 left-10 flex flex-col gap-2 opacity-50">
+              <div className="w-2 h-2 bg-white rounded-full"></div>
+              <div className="w-2 h-2 bg-white rounded-full"></div>
+              <div className="w-2 h-2 bg-white rounded-full"></div>
+           </div>
 
-        {/* FLOWCHART */}
-        <div className="bg-white rounded-2xl p-10 border border-slate-200 shadow-xl overflow-visible relative min-h-[400px]">
-           <div className="flex items-center gap-4 mb-10 border-b border-slate-50 pb-6">
-              <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0066FF]"><Icons.Code2 size={24} /></div>
-              <div className="flex flex-col">
-                <h3 className="text-2xl font-black text-slate-900 tracking-tight">System Architecture</h3>
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">High-Fidelity Integration Schema</p>
+           {/* Large background text effect */}
+           <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] select-none pointer-events-none">
+              <span className="text-[10rem] font-black uppercase">CUBEMOONS</span>
+           </div>
+           
+           <div className="relative z-10">
+              <div className="text-[11px] font-black tracking-[0.4em] uppercase mb-6 opacity-90">Ready to Start</div>
+              <h2 className="text-3xl md:text-5xl font-black mb-6 tracking-tighter leading-tight uppercase whitespace-pre-line">
+                 {s8.headline || "LET'S ELEVATE\nYOUR CONTENT"}
+              </h2>
+              <p className="max-w-xl mx-auto text-base font-medium text-blue-50 mb-10 leading-relaxed opacity-90">
+                 {s8.subheadline || "Partner with Cubemoons to transform your brand's digital presence with world-class creative production."}
+              </p>
+              
+              <div className="text-[11px] font-bold text-white mb-10 flex items-center justify-center gap-2 tracking-wide opacity-80">
+                 Cubemoons <span className="opacity-40">•</span> Engineering the Intelligent Future
               </div>
-           </div>
-           <div className="rounded-2xl border border-slate-50 bg-slate-50/30 p-8 overflow-visible">
-              <VisualFlowchart data={flowchart_data} />
-           </div>
-        </div>
 
-        {/* CTA FOOTER */}
-        <div className="bg-[#0A0A0F] rounded-2xl overflow-visible shadow-2xl relative border-t-4 border-[#0066FF]">
-           <div className="relative px-12 py-24 text-center">
-              <div className="flex justify-center mb-10">
-                 <div className="p-5 bg-white/5 rounded-3xl border border-white/10 shadow-2xl">
-                    <img 
-                      src="/logo.png" 
-                      alt="Logo" 
-                      className="w-20 h-20 object-contain" 
-                      onError={(e) => { e.target.src = "https://cubemoons.com/assets/logo/cubemoons-favicon.svg" }}
-                    />
+              <div className="flex justify-center mb-16">
+                 <button className="bg-white text-blue-600 hover:bg-blue-50 px-10 py-3.5 rounded-full font-black text-xs tracking-widest shadow-xl transition-all hover:scale-105 active:scale-95 uppercase">
+                    {s8.cta_button_text || "Let's Work Together"}
+                 </button>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-10 border-t border-white/10 text-[9px] font-black tracking-[0.2em] uppercase opacity-80">
+                 <div className="flex items-center justify-center gap-2">
+                    <Instagram size={14} className="opacity-70" /> @cube.moons
+                 </div>
+                 <div className="flex items-center justify-center gap-2">
+                    <Globe size={14} className="opacity-70" /> www.cubemoons.com
+                 </div>
+                 <div className="flex items-center justify-center gap-2">
+                    <MapPin size={14} className="opacity-70" /> Raipur, Chhattisgarh
+                 </div>
+                 <div className="flex items-center justify-center gap-2">
+                    <Mail size={14} className="opacity-70" /> marketing@cubemoons.com
                  </div>
               </div>
-              <p className="text-[#00D1FF] font-black text-[10px] uppercase tracking-[0.5em] mb-12">Strategic Partnership Activation</p>
-              <h2 className="text-4xl lg:text-5xl font-black text-white mb-10 tracking-tight leading-tight">{s10.cta_headline}</h2>
-              <p className="text-lg text-slate-400 font-medium max-w-2xl mx-auto mb-16 italic opacity-80 leading-relaxed">"{s10.recommended_next_step}"</p>
-              
-              {s10.offer && (
-                <div className="inline-block px-12 py-5 bg-gradient-to-r from-[#0066FF] to-[#00D1FF] text-white font-black text-xl rounded-2xl mb-24 shadow-[0_20px_40px_rgba(0,102,255,0.3)] uppercase tracking-tight transform hover:scale-105 transition-all cursor-pointer">
-                   {s10.offer}
-                </div>
-              )}
-
-              <div className="grid grid-cols-4 gap-8 pt-16 border-t border-white/5">
-                {[
-                  { icon: <Phone size={16}/>, label: 'VOICE', val: s10.contact?.phone },
-                  { icon: <Mail size={16}/>, label: 'EMAIL', val: s10.contact?.email },
-                  { icon: <Globe size={16}/>, label: 'WEB', val: s10.contact?.website },
-                  { icon: <Calendar size={16}/>, label: 'MEET', val: s10.contact?.calendar_link },
-                ].map((c, i) => (
-                  <div key={i} className="text-center group cursor-pointer">
-                     <div className="text-slate-600 mb-4 flex justify-center group-hover:text-[#00D1FF] transition-colors">{c.icon}</div>
-                     <p className="text-slate-500 text-[10px] font-black tracking-widest mb-2 uppercase opacity-50">{c.label}</p>
-                     <p className="text-white font-bold text-[11px] break-all group-hover:text-blue-200 transition-colors">{c.val}</p>
-                  </div>
-                ))}
-              </div>
            </div>
         </div>
 
-      </div>
-
-      <div className="py-16 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.8em] export-hide">
-        Cubemoons Intelligence Unit • Strategy Division • 2026
+        {/* FOOTER */}
+        <div className="pt-12 mt-12 border-t border-slate-200 text-center">
+           <img src="/logo.png" alt="Logo" className="h-8 mx-auto mb-6 opacity-30" />
+           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">
+             &copy; 2026 CUBEMOONS PVT. LTD. + STRATEGIC INTERNAL TOOL
+           </p>
+        </div>
       </div>
     </div>
   );

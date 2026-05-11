@@ -16,16 +16,18 @@ export default function AuditResult() {
   const pdfUrl = auditData.pdf_url ? getPdfUrl(auditData.pdf_url) : null;
 
   return (
-    <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto animate-fade-in">
       <button 
         onClick={() => navigate('/')}
-        className="flex items-center gap-2 text-gray-500 hover:text-brand-dark mb-8 transition-colors font-medium print:hidden"
+        className="flex items-center gap-2 text-slate-500 hover:text-blue-600 mb-10 transition-all font-bold text-sm bg-white px-5 py-2.5 rounded-full border border-slate-100 shadow-sm hover:shadow-md print:hidden"
       >
-        <ArrowLeft size={20} />
-        Back to Generator
+        <ArrowLeft size={18} />
+        Back to Dashboard
       </button>
 
-      <AuditPreview auditData={auditData} pdfUrl={pdfUrl} />
+      <div className="glass-card rounded-[2.5rem] overflow-hidden">
+        <AuditPreview auditData={auditData} pdfUrl={pdfUrl} />
+      </div>
     </div>
   );
 }

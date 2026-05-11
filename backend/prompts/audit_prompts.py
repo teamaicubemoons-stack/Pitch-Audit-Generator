@@ -111,119 +111,78 @@ Return ONLY valid JSON (no markdown, no code fences, no extra text, just the raw
   "audit_meta": {{
     "client_name": "<company name or 'Prospective Client' if unknown>",
     "industry": "<industry>",
+    "report_id": "<Generate a unique ID e.g. CM-XXXX>",
     "audit_date": "<today's date>",
-    "prepared_by": "Cubemoons Pvt. Ltd.",
-    "confidentiality": "This document is prepared exclusively for the prospective engagement between [client] and Cubemoons Pvt. Ltd."
+    "prepared_by": "Cubemoons Pvt. Ltd."
   }},
 
   "section_1_executive_summary": {{
-    "headline": "<one powerful sentence summarizing the opportunity>",
     "overview": "<3-4 sentences: who they are, what we found, what we recommend, what outcome to expect>",
-    "key_metrics": [
-      {{"label": "<metric label>", "value": "<metric value>", "context": "<brief explanation>"}}
-    ]
+    "key_takeaways": ["<takeaway 1>", "<takeaway 2>", "<takeaway 3>"]
   }},
 
   "section_2_company_overview": {{
     "about": "<what we know/found about this company>",
     "business_model": "<how they operate / make money>",
-    "current_digital_footprint": "<their online presence assessment>",
     "digital_maturity_score": "<X/10>",
-    "maturity_assessment": "<paragraph assessment of their digital maturity>"
+    "maturity_assessment": "<1-2 sentence assessment of their digital maturity>"
   }},
 
   "section_3_current_state_analysis": {{
-    "strengths": ["<strength 1>", "<strength 2>", "<strength 3>"],
-    "weaknesses": ["<weakness 1>", "<weakness 2>", "<weakness 3>"],
-    "opportunities": ["<opportunity 1>", "<opportunity 2>", "<opportunity 3>"],
-    "threats": ["<threat 1>", "<threat 2>"],
-    "swot_narrative": "<2-3 sentence SWOT summary>"
+    "current_challenges": ["<challenge 1>", "<challenge 2>", "<challenge 3>"],
+    "inefficiencies": [
+      {{"area": "<area name>", "impact": "<description of inefficiency impact>"}}
+    ]
   }},
 
   "section_4_problem_identification": {{
-    "primary_problems": [
+    "gaps": [
       {{
-        "problem_title": "<problem name>",
-        "description": "<detailed explanation of the problem>",
-        "business_impact": "<quantified or described impact on their business>",
-        "root_cause": "<why this problem exists>",
-        "priority": "<Critical | High | Medium>"
+        "priority": "<Critical | High | Medium>",
+        "gap_name": "<name of gap>",
+        "description": "<detailed explanation>",
+        "consequence": "<business risk if not addressed>"
       }}
-    ],
-    "problem_summary": "<overall narrative connecting all problems>"
+    ]
   }},
 
   "section_5_proposed_solution": {{
-    "solution_overview": "<clear explanation of what Cubemoons will build/deliver>",
-    "solution_components": [
-      {{
-        "component_name": "<name of deliverable>",
-        "cubemoons_service": "<specific Cubemoons service>",
-        "what_we_build": "<exactly what will be delivered>",
-        "solves_problem": "<which problem from section 4 this solves>",
-        "technology": "<tech stack to be used>"
-      }}
-    ],
-    "why_this_approach": "<paragraph explaining why this is the right solution for them specifically>"
+    "solution_name": "<compelling name for the solution>",
+    "high_level_concept": "<1-2 sentence description of the solution strategy>",
+    "key_features": ["<feature 1>", "<feature 2>", "<feature 3>", "<feature 4>"]
   }},
 
-  "section_6_why_this_solution_works": {{
-    "data_points": [
-      {{"claim": "<specific benefit claim>", "evidence": "<data/logic supporting it>"}}
-    ],
-    "industry_benchmarks": "<how similar companies performed after similar solutions>",
-    "risk_mitigation": "<how Cubemoons reduces implementation risk>"
-  }},
-
-  "section_7_implementation_roadmap": {{
+  "section_6_implementation_roadmap": {{
     "phases": [
       {{
         "phase_number": 1,
-        "phase_name": "<e.g. Discovery & Foundation>",
-        "duration": "<e.g. 2 weeks>",
+        "phase_name": "<e.g. Foundation & Setup>",
+        "duration": "<e.g. 2-3 Weeks>",
         "deliverables": ["<deliverable 1>", "<deliverable 2>"],
-        "milestone": "<key milestone at end of phase>"
-      }}
-    ],
-    "total_timeline": "<e.g. 10-14 weeks>",
-    "delivery_model": "<Agile sprints / Fixed milestone / Retainer>"
-  }},
-
-  "section_8_roi_and_impact": {{
-    "expected_outcomes": [
+        "milestone": "<key milestone>"
+      }},
       {{
-        "outcome": "<outcome name>",
-        "metric": "<measurable KPI>",
-        "timeframe": "<when to expect>",
-        "conservative_estimate": "<lower bound>",
-        "optimistic_estimate": "<upper bound>"
+        "phase_number": 2,
+        "phase_name": "<e.g. Core Development>",
+        "duration": "<e.g. 4-6 Weeks>",
+        "deliverables": ["<deliverable 1>", "<deliverable 2>"],
+        "milestone": "<key milestone>"
       }}
-    ],
-    "roi_narrative": "<2-3 sentences summarizing the return on investment>"
+    ]
   }},
 
-  "section_9_why_cubemoons": {{
-    "differentiators": [
-      {{"title": "<differentiator>", "description": "<explanation>"}}
-    ],
-    "relevant_experience": "<our experience in their industry or similar projects>",
-    "process_advantage": "<how our Discovery→Design→Dev→Launch process benefits them>",
-    "team_highlight": "<brief description of team strengths relevant to this project>",
-    "proven_products": ["DomainGems AI", "Ecoprocess", "Keep Connect", "Kovon"]
+  "section_7_roi_and_impact": {{
+    "metrics": [
+      {{"area": "<e.g. Efficiency>", "improvement": "<e.g. +40%>", "timeframe": "<e.g. 3-6 Months>"}},
+      {{"area": "<e.g. Revenue>", "improvement": "<e.g. 2x Growth>", "timeframe": "<e.g. 1 Year>"}},
+      {{"area": "<e.g. Automation>", "improvement": "<e.g. 50+ hrs/week saved>", "timeframe": "<e.g. Post-Launch>"}}
+    ]
   }},
 
-  "section_10_next_steps": {{
-    "cta_headline": "<compelling call to action headline>",
-    "recommended_next_step": "<specific next action — e.g. 30-min discovery call>",
-    "meeting_agenda_suggestion": ["<agenda item 1>", "<agenda item 2>", "<agenda item 3>"],
-    "offer": "<any special offer — e.g. free technical audit, pilot project>",
-    "contact": {{
-      "name": "Cubemoons Team",
-      "phone": "+91-9039034412",
-      "email": "support@cubemoons.com",
-      "website": "https://cubemoons.com",
-      "calendar_link": "https://cubemoons.com/consulting"
-    }}
+  "section_8_call_to_action": {{
+    "headline": "<personalized headline e.g. LET'S SCALE YOUR REAL ESTATE OPERATIONS>",
+    "subheadline": "<personalized subheadline e.g. Partner with Cubemoons to transform Avinash Group's digital presence with world-class tech solution.>",
+    "cta_button_text": "Let's Work Together"
   }}
 }}
 """

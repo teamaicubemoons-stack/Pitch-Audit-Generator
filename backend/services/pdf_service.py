@@ -52,6 +52,7 @@ async def generate_pdf(audit_data: dict, flowchart_data: dict = None) -> str:
     try:
         browser = await launch(
             headless=True,
+            executablePath=r"C:\Program Files\Google\Chrome\Application\chrome.exe",
             args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
         )
         page = await browser.newPage()
@@ -97,7 +98,11 @@ async def convert_raw_html_to_pdf(html_content: str) -> str:
     pdf_path = os.path.join(PDF_OUTPUT_DIR, f"{file_id}.pdf")
 
     try:
-        browser = await launch(headless=True, args=['--no-sandbox'])
+        browser = await launch(
+            headless=True, 
+            executablePath=r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+            args=['--no-sandbox']
+        )
         page = await browser.newPage()
         await page.setContent(html_content, waitUntil='networkidle0')
         await page.pdf({
