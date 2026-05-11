@@ -31,7 +31,7 @@ export default function Home() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
       
-      const response = await fetch(`http://51.20.72.81:8000${endpoint}`, {
+      const response = await fetch(`/api${endpoint}`, {
         signal: controller.signal
       });
       
