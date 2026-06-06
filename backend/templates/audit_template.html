@@ -2,173 +2,691 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>Impression Client Audit</title>
     <style>
         {{ css_content | safe }}
     </style>
 </head>
 <body>
 
-<!-- COVER PAGE -->
-<div class="cover-wrapper">
-    <div class="cover-logo">CUBEMOONS</div>
-    <div class="cover-label">CLIENT DIGITAL AUDIT REPORT</div>
-    <h1 class="cover-title">{{ audit.audit_meta.client_name }}</h1>
-    <div class="cover-headline">{{ audit.section_1_executive_summary.headline }}</div>
-
-    <div class="meta-grid">
-        <div class="meta-item">
-            <div class="meta-label">Industry</div>
-            <div class="meta-value">{{ audit.audit_meta.industry }}</div>
+<!-- Slide 1: Cover -->
+<div class="slide cover-slide">
+    <div class="cover-left">
+        <div class="cover-left-overlay"></div>
+        <div style="display: flex; align-items: center; gap: 6pt; z-index: 10;">
+            {% if logo_base64 %}
+            <img src="data:image/png;base64,{{ logo_base64 }}" style="height: 20px; width: auto; object-fit: contain; filter: invert(1) brightness(2);" alt="Impression Logo">
+            {% endif %}
+            <span style="font-size: 7.5pt; font-weight: 900; letter-spacing: 2px; color: #E9D5FF; text-transform: uppercase;">Impression AI</span>
         </div>
-        <div class="meta-item">
-            <div class="meta-label">Prepared By</div>
-            <div class="meta-value">Cubemoons AI</div>
-        </div>
-        <div class="meta-item">
-            <div class="meta-label">Date</div>
-            <div class="meta-value">{{ audit.audit_meta.audit_date }}</div>
-        </div>
-    </div>
-</div>
-
-<!-- S1: EXECUTIVE SUMMARY -->
-{% set s1 = audit.section_1_executive_summary %}
-<div class="section">
-    <div class="section-tag">SECTION 01</div>
-    <h2 class="section-header">Executive Summary</h2>
-    <div class="headline-block">"{{ s1.headline }}"</div>
-    <p style="font-size: 14pt; margin-bottom: 20pt;">{{ s1.overview }}</p>
-
-    <div class="card-grid">
-        {% for m in s1.key_metrics[:3] %}
-        <div class="metric-card">
-            <div class="metric-val">{{ m.value }}</div>
-            <div class="metric-lab">{{ m.label }}</div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-
-<!-- S2: COMPANY OVERVIEW -->
-{% set s2 = audit.section_2_company_overview %}
-<div class="section">
-    <div class="section-tag">SECTION 02</div>
-    <h2 class="section-header">Company Overview</h2>
-    
-    <div class="card-grid" style="display: flex; gap: 20pt;">
-        <div class="card" style="flex: 1;">
-            <h3 style="color: #6C63FF;">About</h3>
-            <p>{{ s2.about }}</p>
-            <h3 style="color: #6C63FF; margin-top: 20pt;">Business Model</h3>
-            <p>{{ s2.business_model }}</p>
-        </div>
-        <div style="flex: 1; display: flex; flex-direction: column; gap: 20pt;">
-            <div class="card">
-                <h3 style="color: #6C63FF;">Digital Footprint</h3>
-                <p>{{ s2.current_digital_footprint }}</p>
-            </div>
-            <div class="card">
-                <h3 style="color: #6C63FF;">Maturity Assessment</h3>
-                <p>{{ s2.maturity_assessment }}</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- S3: SWOT -->
-{% set s3 = audit.section_3_current_state_analysis %}
-<div class="section">
-    <div class="section-tag">SECTION 03</div>
-    <h2 class="section-header">SWOT Analysis</h2>
-    <div class="swot-grid">
-        <div class="swot-item" style="border-top: 4pt solid #10B981;">
-            <div class="swot-title" style="color: #10B981;">Strengths</div>
-            <ul>{% for i in s3.strengths %}<li>{{ i }}</li>{% endfor %}</ul>
-        </div>
-        <div class="swot-item" style="border-top: 4pt solid #EF4444;">
-            <div class="swot-title" style="color: #EF4444;">Weaknesses</div>
-            <ul>{% for i in s3.weaknesses %}<li>{{ i }}</li>{% endfor %}</ul>
-        </div>
-        <div class="swot-item" style="border-top: 4pt solid #3B82F6;">
-            <div class="swot-title" style="color: #3B82F6;">Opportunities</div>
-            <ul>{% for i in s3.opportunities %}<li>{{ i }}</li>{% endfor %}</ul>
-        </div>
-        <div class="swot-item" style="border-top: 4pt solid #F59E0B;">
-            <div class="swot-title" style="color: #F59E0B;">Threats</div>
-            <ul>{% for i in s3.threats %}<li>{{ i }}</li>{% endfor %}</ul>
-        </div>
-    </div>
-</div>
-
-<!-- S4: PROBLEMS -->
-{% set s4 = audit.section_4_problem_identification %}
-<div class="section">
-    <div class="section-tag">SECTION 04</div>
-    <h2 class="section-header">Problem Identification</h2>
-    <p style="margin-bottom: 25pt; font-style: italic; color: #6B7280; font-size: 13pt;">{{ s4.problem_summary }}</p>
-
-    {% for p in s4.primary_problems %}
-    <div class="problem-card" style="border-left-color: {% if p.priority == 'Critical' %}#EF4444{% elif p.priority == 'High' %}#F59E0B{% else %}#3B82F6{% endif %};">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10pt;">
-            <strong style="font-size: 16pt; color: #111827;">{{ p.problem_title }}</strong>
-            <span style="background: #F3F4F6; padding: 4pt 10pt; border-radius: 6pt; font-size: 10pt; font-weight: 800;">{{ p.priority | upper }}</span>
-        </div>
-        <p style="margin-bottom: 15pt;">{{ p.description }}</p>
-        <div style="display: flex; gap: 20pt; background: white; padding: 12pt; border-radius: 10pt; border: 1pt solid #E5E7EB;">
-            <div style="flex: 1;"><small style="color: #6B7280; text-transform: uppercase;">Impact</small><br><strong>{{ p.business_impact }}</strong></div>
-            <div style="flex: 1;"><small style="color: #6B7280; text-transform: uppercase;">Root Cause</small><br><strong>{{ p.root_cause }}</strong></div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-
-<!-- S5: SOLUTION -->
-{% set s5 = audit.section_5_proposed_solution %}
-<div class="section">
-    <div class="section-tag">SECTION 05</div>
-    <h2 class="section-header">Proposed Solution</h2>
-    <div class="headline-block">{{ s5.solution_overview }}</div>
-
-    <div class="card-grid">
-        {% for c in s5.solution_components %}
-        <div class="card" style="flex: 1; min-width: 300pt;">
-            <h3 style="color: #FF6B35;">{{ c.component_name }}</h3>
-            <p style="margin: 10pt 0;">{{ c.what_we_build }}</p>
-            <div style="font-size: 10pt; color: #6B7280; border-top: 1pt solid #F3F4F6; padding-top: 10pt; margin-top: 10pt;">
-                Capability: <strong style="color: #6C63FF;">{{ c.cubemoons_service }}</strong>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-
-<!-- ROADMAP & NEXT STEPS -->
-{% set s7 = audit.section_7_implementation_roadmap %}
-{% set s10 = audit.section_10_next_steps %}
-<div class="section page-break">
-    <div class="section-tag">ROADMAP</div>
-    <h2 class="section-header">Implementation Roadmap</h2>
-    
-    {% for ph in s7.phases %}
-    <div class="card" style="border-left: 5pt solid #FF6B35; border-radius: 0 16pt 16pt 0;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 10pt;">
-            <strong style="font-size: 16pt;">Phase {{ ph.phase_number }}: {{ ph.phase_name }}</strong>
-            <span style="color: #6B7280;">{{ ph.duration }}</span>
-        </div>
-        <ul>{% for d in ph.deliverables %}<li>{{ d }}</li>{% endfor %}</ul>
-        <div style="margin-top: 10pt; font-weight: bold; color: #10B981;">Milestone: <span style="color: #111827;">{{ ph.milestone }}</span></div>
-    </div>
-    {% endfor %}
-
-    <div style="margin-top: 50pt; padding: 40pt; background: #111827; color: white; border-radius: 20pt; text-align: center; break-inside: avoid;">
-        <div style="color: #FF6B35; font-weight: 800; letter-spacing: 2pt; font-size: 12pt; margin-bottom: 20pt;">NEXT STEPS</div>
-        <div style="font-size: 32pt; font-weight: 900; margin-bottom: 20pt;">{{ s10.cta_headline }}</div>
-        <p style="color: #9CA3AF; margin-bottom: 40pt; font-size: 16pt; max-width: 80%; margin-left: auto; margin-right: auto;">{{ s10.recommended_next_step }}</p>
         
-        <div style="display: flex; justify-content: center; gap: 40pt; border-top: 1pt solid #374151; padding-top: 30pt;">
-            <div><strong>Call:</strong> {{ s10.contact.phone }}</div>
-            <div><strong>Email:</strong> {{ s10.contact.email }}</div>
+        <div style="z-index: 10; margin: auto 0;">
+            <span style="font-size: 7pt; font-weight: 900; color: #C084FC; letter-spacing: 3px; text-transform: uppercase; display: block; margin-bottom: 6pt;">INTERNAL STRATEGY</span>
+            <h2 style="font-size: 18pt; font-weight: 900; line-height: 1.3; color: white; text-transform: uppercase; margin: 0; font-family: 'Cinzel', serif;">
+                Digital Growth <br>
+                <span style="color: #C084FC;">&amp; Transformation</span>
+            </h2>
+            <div style="height: 2pt; width: 40pt; background: linear-gradient(to right, #7C3AED, #A78BFA); border-radius: 1pt; margin-top: 10pt;"></div>
         </div>
+
+        <div style="z-index: 10; border-top: 1pt solid rgba(255,255,255,0.1); padding-top: 15pt; font-size: 6.5pt; font-weight: 900; color: #94A3B8; letter-spacing: 1px; text-transform: uppercase;">
+            <div style="margin-bottom: 3pt;">REPORT ID: <span style="color: #FFFFFF; font-weight: bold;">{{ audit.audit_meta.report_id }}</span></div>
+            <div style="margin-bottom: 3pt;">DATE: <span style="color: #FFFFFF; font-weight: bold;">{{ audit.audit_meta.audit_date }}</span></div>
+            <div>PREPARED BY: <span style="color: #C084FC; font-weight: bold;">IMPRESSION.PR</span></div>
+        </div>
+    </div>
+    
+    <div class="cover-right">
+        <div class="cover-right-overlay"></div>
+        <div style="display: flex; justify-content: flex-end; z-index: 10;">
+            <span style="font-size: 7.5pt; font-weight: 900; color: #7C3AED; background-color: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.15); padding: 3pt 8pt; border-radius: 10pt; text-transform: uppercase; letter-spacing: 1px;">
+                {{ audit.audit_meta.industry }}
+            </span>
+        </div>
+        
+        <div style="z-index: 10; margin: auto 0; padding-right: 20pt;">
+            <span style="font-size: 8pt; font-weight: 950; color: #94A3B8; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 4pt;">AUDIT REPORT FOR</span>
+            <h1 class="cover-title" style="font-size: 28pt; margin: 0; line-height: 1.15; color: #0F172A; text-transform: uppercase; font-family: 'Cinzel', serif;">{{ audit.audit_meta.client_name }}</h1>
+            <p style="font-size: 9pt; font-weight: bold; color: #64748B; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 10pt;">
+                Analysis of Brand Identity, Competitors, and Automation Opportunities
+            </p>
+        </div>
+
+        <div style="z-index: 10; border-top: 1pt solid #E2E8F0; padding-top: 12pt; display: flex; justify-content: space-between; font-size: 7.5pt; font-weight: 900; color: #94A3B8; letter-spacing: 1px; text-transform: uppercase;">
+            <div>📍 Raipur Hub</div>
+            <div style="color: #7C3AED;">CONFIDENTIAL DOCUMENT</div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 2: Company Overview -->
+<div class="slide">
+    <div class="slide-grid-bg"></div>
+    <div class="slide-header">
+        <div class="header-left">
+            {% if logo_base64 %}
+            <img src="data:image/png;base64,{{ logo_base64 }}" class="logo-img" alt="Impression Logo">
+            {% endif %}
+            <div class="header-divider"></div>
+            <div class="header-category">Context</div>
+        </div>
+        <h2 class="slide-title">Company Overview</h2>
+    </div>
+
+    <div class="slide-body">
+        <div class="grid-2">
+            <div class="col-left">
+                <div style="background-color: #F8FAFC; border: 1pt solid #E2E8F0; border-radius: 14pt; padding: 12pt; margin-bottom: 10pt; position: relative;">
+                    <div style="position: absolute; left: 8pt; top: 2pt; font-size: 40pt; font-family: serif; color: rgba(124, 58, 237, 0.15); line-height: 1; user-select: none;">“</div>
+                    <h3 style="font-size: 7.5pt; font-weight: 900; color: #7C3AED; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4pt; padding-left: 12pt; position: relative; z-index: 10;">Where It All Began</h3>
+                    <p style="font-size: 9.5pt; font-weight: 600; color: #475569; margin: 0; line-height: 1.45; font-style: italic; padding-left: 12pt; position: relative; z-index: 10;">{{ audit.company_overview.about }}</p>
+                </div>
+                <div class="business-card">
+                    <div class="card-title-tiny">Business Concept</div>
+                    <p class="card-desc-bold" style="font-size: 8.5pt;">{{ audit.company_overview.business_type }}</p>
+                </div>
+            </div>
+            
+            <div class="col-right">
+                <div class="meta-icon-item">
+                    <div class="meta-icon-box">📍</div>
+                    <div>
+                        <div style="font-size: 7.5pt; font-weight: 900; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px;">Location</div>
+                        <div style="font-size: 9pt; font-weight: bold; color: #1E293B;">{{ audit.company_overview.location_text }}</div>
+                    </div>
+                </div>
+
+                <div class="meta-icon-item">
+                    <div class="meta-icon-box">🛍️</div>
+                    <div>
+                        <div style="font-size: 7.5pt; font-weight: 900; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px;">Products Sold</div>
+                        <div style="font-size: 9pt; font-weight: bold; color: #1E293B;">{{ audit.company_overview.products }}</div>
+                    </div>
+                </div>
+
+                <div class="meta-icon-item" style="margin-bottom: 0;">
+                    <div class="meta-icon-box">🌐</div>
+                    <div>
+                        <div style="font-size: 7.5pt; font-weight: 900; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px;">Current Presence</div>
+                        <div style="font-size: 9pt; font-weight: bold; color: #1E293B;">{{ audit.company_overview.digital_presence }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if audit.company_overview.current_gap_banner %}
+        <div class="reality-banner" style="margin-top: 10pt;">
+            <span>⚠️</span> Current Digital Reality: {{ audit.company_overview.current_gap_banner }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="slide-footer">
+        <div>Impression Audit AI Portal</div>
+        <div>Slide 2 of 11</div>
+    </div>
+</div>
+
+<!-- Slide 3: Agenda -->
+<div class="slide">
+    <div class="slide-grid-bg"></div>
+    <div class="slide-header">
+        <div class="header-left">
+            {% if logo_base64 %}
+            <img src="data:image/png;base64,{{ logo_base64 }}" class="logo-img" alt="Impression Logo">
+            {% endif %}
+            <div class="header-divider"></div>
+            <div class="header-category">Agenda</div>
+        </div>
+        <h2 class="slide-title">The Game Plan</h2>
+    </div>
+
+    <div class="slide-body">
+        <div class="timeline-agenda-grid">
+            {% for item in audit.agenda %}
+            <div class="timeline-agenda-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="timeline-num">{{ "%02d" | format(loop.index) }}</span>
+                    <span style="font-size: 11pt;">
+                        {% set text = item | upper %}
+                        {% if "BRAND" in text %}🎨
+                        {% elif "COMPETIT" in text %}📈
+                        {% elif "USP" in text or "SELLING" in text %}✨
+                        {% elif "GAP" in text or "MINDSET" in text %}🎯
+                        {% elif "METRIC" in text or "STATUS" in text or "MATRIX" in text %}📊
+                        {% elif "AUTOMAT" in text or "CRM" in text or "TRACK" in text %}⚙️
+                        {% elif "WHATSAPP" in text or "MESSAG" in text %}💬
+                        {% else %}🚀
+                        {% endif %}
+                    </span>
+                </div>
+                <span class="timeline-text">{{ item }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="slide-footer">
+        <div>Impression Audit AI Portal</div>
+        <div>Slide 3 of 11</div>
+    </div>
+</div>
+
+<!-- Slide 4: Brand Identity & Colors -->
+<div class="slide">
+    <div class="slide-grid-bg"></div>
+    <div class="slide-header">
+        <div class="header-left">
+            {% if logo_base64 %}
+            <img src="data:image/png;base64,{{ logo_base64 }}" class="logo-img" alt="Impression Logo">
+            {% endif %}
+            <div class="header-divider"></div>
+            <div class="header-category">Identity</div>
+        </div>
+        <h2 class="slide-title">Brand Identity &amp; Colors</h2>
+    </div>
+
+    <div class="slide-body">
+        <div class="grid-2">
+            <div class="col-left">
+                <div style="border-left: 4pt solid #7C3AED; bg-color: #F8FAFC; padding: 12pt; border-radius: 0 12pt 12pt 0; background-color: #F8FAFC; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; margin-bottom: 12pt;">
+                    <h3 style="font-size: 7.5pt; font-weight: 900; color: #64748B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4pt;">Core Identity &amp; Purpose</h3>
+                    <p style="font-size: 10pt; font-weight: 600; color: #475569; margin: 0; line-height: 1.45; font-style: italic;">"{{ audit.brand_identity.purpose }}"</p>
+                </div>
+                
+                <div>
+                    <h4 style="font-size: 7.5pt; font-weight: 900; color: #64748B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6pt;">Personality Keywords</h4>
+                    <div class="badge-container">
+                        {% for trait in audit.brand_identity.personality %}
+                        <span class="trait-badge">{{ trait }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-right" style="justify-content: space-between;">
+                <div>
+                    <h3 style="font-size: 7.5pt; font-weight: 900; color: #64748B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8pt;">Color Archetype</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8pt;">
+                        {% for color in audit.brand_identity.suggested_colors %}
+                        <div style="display: flex; align-items: center; background-color: #F8FAFC; border: 1pt solid #E2E8F0; border-radius: 8pt; padding: 5pt; gap: 8pt;">
+                            <div style="background-color: {{ color.value }}; margin: 0; width: 18pt; height: 18pt; border-radius: 50%; shrink: 0; border: 1px solid #E2E8F0;"></div>
+                            <div>
+                                <div style="font-size: 7.5pt; font-weight: bold; color: #1E293B;">{{ color.name }}</div>
+                                <div style="font-size: 7pt; font-family: monospace; color: #94A3B8;">{{ color.value }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div style="background-color: #F8FAFC; border: 1pt solid #E2E8F0; padding: 6pt 10pt; border-radius: 8pt; display: flex; justify-content: space-between; align-items: center; margin-top: 8pt;">
+                    <div style="display: flex; align-items: center; gap: 4pt;">
+                        <span style="font-size: 9pt;">✨</span>
+                        <span style="font-size: 7.5pt; font-weight: 900; color: #334155; text-transform: uppercase;">Aesthetic Direction</span>
+                    </div>
+                    <span style="font-size: 7.5pt; font-weight: 900; text-transform: uppercase; background-color: #E9D5FF; color: #7C3AED; padding: 1pt 5pt; border-radius: 4pt;">Premium &amp; Modern</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-footer">
+        <div>Impression Audit AI Portal</div>
+        <div>Slide 4 of 11</div>
+    </div>
+</div>
+
+<!-- Slide 5: Competitor Benchmarking -->
+<div class="slide">
+    <div class="slide-grid-bg"></div>
+    <div class="slide-header">
+        <div class="header-left">
+            {% if logo_base64 %}
+            <img src="data:image/png;base64,{{ logo_base64 }}" class="logo-img" alt="Impression Logo">
+            {% endif %}
+            <div class="header-divider"></div>
+            <div class="header-category">Competition</div>
+        </div>
+        <h2 class="slide-title">Competitor Benchmarking</h2>
+    </div>
+
+    <div class="slide-body">
+        <table class="comp-table">
+            <thead>
+                <tr>
+                    <th>Brand Entity</th>
+                    <th>Instagram</th>
+                    <th>Website Hub</th>
+                    <th>WhatsApp</th>
+                    <th>YouTube</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in audit.competitor_analysis.comparison_table %}
+                {% set isClient = loop.index == 1 %}
+                <tr class="{% if isClient %}client-row{% endif %}">
+                    <td>
+                        {{ row.entity }}
+                        {% if isClient %}
+                        <span style="font-size: 6.5pt; background-color: #7C3AED; color: white; padding: 1pt 4pt; border-radius: 2pt; font-weight: 900; text-transform: uppercase; margin-left: 4pt; letter-spacing: 0.5px;">You</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% set cell = row.instagram %}
+                        {% set val = cell | lower %}
+                        {% if "none" in val or "not set" in val or "no" in val or "inactive" in val or "critical" in val %}
+                            <span class="comp-badge badge-danger">⚠️ {{ cell }}</span>
+                        {% elif "active" in val or "followers" in val or "yes" in val or "setup" in val or "automated" in val %}
+                            <span class="comp-badge badge-success">✓ {{ cell }}</span>
+                        {% else %}
+                            <span class="comp-badge badge-neutral">? {{ cell }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% set cell = row.text_website if row.text_website else row.website %}
+                        {% set val = cell | lower %}
+                        {% if "none" in val or "not set" in val or "no" in val or "inactive" in val or "critical" in val %}
+                            <span class="comp-badge badge-danger">⚠️ {{ cell }}</span>
+                        {% elif "active" in val or "followers" in val or "yes" in val or "setup" in val or "automated" in val %}
+                            <span class="comp-badge badge-success">✓ {{ cell }}</span>
+                        {% else %}
+                            <span class="comp-badge badge-neutral">? {{ cell }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% set cell = row.text_whatsapp if row.text_whatsapp else row.whatsapp %}
+                        {% set val = cell | lower %}
+                        {% if "none" in val or "not set" in val or "no" in val or "inactive" in val or "critical" in val %}
+                            <span class="comp-badge badge-danger">⚠️ {{ cell }}</span>
+                        {% elif "active" in val or "followers" in val or "yes" in val or "setup" in val or "automated" in val %}
+                            <span class="comp-badge badge-success">✓ {{ cell }}</span>
+                        {% else %}
+                            <span class="comp-badge badge-neutral">? {{ cell }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% set cell = row.text_youtube if row.text_youtube else row.youtube %}
+                        {% set val = cell | lower %}
+                        {% if "none" in val or "not set" in val or "no" in val or "inactive" in val or "critical" in val %}
+                            <span class="comp-badge badge-danger">⚠️ {{ cell }}</span>
+                        {% elif "active" in val or "followers" in val or "yes" in val or "setup" in val or "automated" in val %}
+                            <span class="comp-badge badge-success">✓ {{ cell }}</span>
+                        {% else %}
+                            <span class="comp-badge badge-neutral">? {{ cell }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="slide-footer">
+        <div>Impression Audit AI Portal</div>
+        <div>Slide 5 of 11</div>
+    </div>
+</div>
+
+<!-- Slide 6: Unique Selling Points -->
+<div class="slide">
+    <div class="slide-grid-bg"></div>
+    <div class="slide-header">
+        <div class="header-left">
+            {% if logo_base64 %}
+            <img src="data:image/png;base64,{{ logo_base64 }}" class="logo-img" alt="Impression Logo">
+            {% endif %}
+            <div class="header-divider"></div>
+            <div class="header-category">USPs</div>
+        </div>
+        <h2 class="slide-title">Unique Selling Points</h2>
+    </div>
+
+    <div class="slide-body">
+        <div class="usp-grid">
+            {% for usp in audit.unique_selling_points[:6] %}
+                {% set cleaned_usp = usp | replace('**', '') %}
+                {% if ':' in cleaned_usp %}
+                    {% set parts = cleaned_usp.split(':', 1) %}
+                    {% set usp_title = parts[0] | trim %}
+                    {% set usp_desc = parts[1] | trim %}
+                {% else %}
+                    {% set usp_title = "Strategic Advantage" %}
+                    {% set usp_desc = cleaned_usp | trim %}
+                {% endif %}
+            <div class="usp-card">
+                <div class="check-icon-circle">
+                    {% if loop.index == 1 %}🏆
+                    {% elif loop.index == 2 %}📍
+                    {% elif loop.index == 3 %}📈
+                    {% elif loop.index == 4 %}⚙️
+                    {% elif loop.index == 5 %}🚚
+                    {% else %}🛡️
+                    {% endif %}
+                </div>
+                <h4 class="usp-title">{{ usp_title }}</h4>
+                <p class="usp-text-clean">{{ usp_desc }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="slide-footer">
+        <div>Impression Audit AI Portal</div>
+        <div>Slide 6 of 11</div>
+    </div>
+</div>
+
+<!-- Slide 7: Current Gaps & Buyer Mindset -->
+<div class="slide">
+    <div class="slide-grid-bg"></div>
+    <div class="slide-header">
+        <div class="header-left">
+            {% if logo_base64 %}
+            <img src="data:image/png;base64,{{ logo_base64 }}" class="logo-img" alt="Impression Logo">
+            {% endif %}
+            <div class="header-divider"></div>
+            <div class="header-category">Gaps</div>
+        </div>
+        <h2 class="slide-title">Current Gaps &amp; Buyer Mindset</h2>
+    </div>
+
+    <div class="slide-body">
+        <div class="grid-2">
+            <div class="col-left" style="justify-content: start; gap: 8pt;">
+                <h3 style="font-size: 7.5pt; font-weight: 900; color: #64748B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2pt;">Identified Inefficiencies</h3>
+                <div class="gaps-scroll-container">
+                    {% for gap in audit.current_gaps.gap_list[:3] %}
+                    <div class="gap-mini-card">
+                        <span style="font-size: 10pt; margin-top: 1px;">❌</span>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <div class="gap-mini-title">{{ gap.title }}</div>
+                                <span style="font-size: 5.5pt; font-weight: 900; color: #B91C1C; background-color: #FEE2E2; padding: 0.5pt 3pt; border-radius: 2pt; text-transform: uppercase; tracking: 0.5px;">High Impact</span>
+                            </div>
+                            <p class="gap-mini-desc">{{ gap.desc }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="col-right" style="justify-content: center; gap: 8pt;">
+                <h3 style="font-size: 7.5pt; font-weight: 900; color: #64748B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2pt;">The Messaging Mismatch</h3>
+                
+                <div class="chat-container-mock">
+                    <div class="chat-header-mock">
+                        <span style="display: inline-block; width: 4pt; height: 4pt; border-radius: 50%; background-color: #10B981; margin-right: 4pt;"></span>
+                        Simulated B2B Buyer Query Thread
+                    </div>
+                    <div style="padding: 8pt; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div class="chat-bubble-left">
+                            <span>Wholesale Buyer</span>
+                            "{{ audit.current_gaps.buyer_questions }}"
+                        </div>
+                        <div class="chat-bubble-right">
+                            <span>Your Current Response</span>
+                            "{{ audit.current_gaps.current_messaging }}"
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background-color: #F5F3FF; border: 1pt solid #E8E5FF; padding: 5pt; border-radius: 8pt; text-align: center;">
+                    <span style="font-size: 7.5pt; font-weight: 900; color: #7C3AED; text-transform: uppercase; letter-spacing: 0.5px;">
+                        Opportunity: Auto-resolve buyer queries on chat instantly
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-footer">
+        <div>Impression Audit AI Portal</div>
+        <div>Slide 7 of 11</div>
+    </div>
+</div>
+
+<!-- Slide 8: Metric & Status Matrix -->
+<div class="slide">
+    <div class="slide-grid-bg"></div>
+    <div class="slide-header">
+        <div class="header-left">
+            {% if logo_base64 %}
+            <img src="data:image/png;base64,{{ logo_base64 }}" class="logo-img" alt="Impression Logo">
+            {% endif %}
+            <div class="header-divider"></div>
+            <div class="header-category">Matrix</div>
+        </div>
+        <h2 class="slide-title">Metric &amp; Status Matrix</h2>
+    </div>
+
+    <div class="slide-body">
+        <div class="matrix-grid">
+            {% for item in audit.metrics_status %}
+            {% set val = item.status | lower %}
+            {% if "critical" in val or "missing" in val %}
+                {% set pct = 25 %}
+                {% set active_color = "#EF4444" %}
+            {% elif "weak" in val %}
+                {% set pct = 45 %}
+                {% set active_color = "#F59E0B" %}
+            {% elif "needs work" in val or "improvement" in val %}
+                {% set pct = 65 %}
+                {% set active_color = "#3B82F6" %}
+            {% else %}
+                {% set pct = 90 %}
+                {% set active_color = "#10B981" %}
+            {% endif %}
+            <div class="matrix-row">
+                <span class="matrix-metric">{{ item.metric }}</span>
+                <div style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; font-size: 6.5pt; font-weight: bold; color: #94A3B8; margin-bottom: 2pt;">
+                        <span>Health</span>
+                        <span style="color: {{ active_color }};">{{ pct }}%</span>
+                    </div>
+                    <div class="metric-bar-bg">
+                        <div class="metric-bar-fill" style="width: {{ pct }}%; background-color: {{ active_color }};"></div>
+                    </div>
+                </div>
+                <span class="matrix-status" style="background-color: {{ item.color }}15; color: {{ item.color }}; border: 1px solid {{ item.color }}30;">
+                    {{ item.status }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="slide-footer">
+        <div>Impression Audit AI Portal</div>
+        <div>Slide 8 of 11</div>
+    </div>
+</div>
+
+<!-- Slide 9: Systems & CRM Architecture -->
+<div class="slide">
+    <div class="slide-grid-bg"></div>
+    <div class="slide-header">
+        <div class="header-left">
+            {% if logo_base64 %}
+            <img src="data:image/png;base64,{{ logo_base64 }}" class="logo-img" alt="Impression Logo">
+            {% endif %}
+            <div class="header-divider"></div>
+            <div class="header-category">Automation</div>
+        </div>
+        <h2 class="slide-title">Systems &amp; CRM Architecture</h2>
+    </div>
+
+    <div class="slide-body">
+        {% if flowchart_data %}
+        <div class="grid-2" style="grid-template-columns: 0.8fr 1.2fr;">
+            <div class="col-left" style="justify-content: center; gap: 10pt;">
+                <div class="card-title-tiny">Lead Automation</div>
+                {% for item in audit.automation_tracking %}
+                <div class="business-card" style="padding: 10pt; margin-bottom: 5pt;">
+                    <div style="font-size: 9pt; font-weight: 800; color: #7C3AED; text-transform: uppercase; margin-bottom: 2pt;">{{ item.title }}</div>
+                    <p style="font-size: 8.5pt; font-weight: bold; color: #475569; margin: 0; line-height: 1.3;">{{ item.desc }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="col-right" style="justify-content: center;">
+                <div style="width: 100%;">
+                    <div style="font-size: 9pt; font-weight: 900; color: #7C3AED; text-transform: uppercase; text-align: center; margin-bottom: 10pt;">{{ flowchart_data.workflow_title }}</div>
+                    <div style="display: flex; flex-direction: column; gap: 6pt;">
+                        {% for step in flowchart_data.steps[:4] %}
+                        <div style="display: flex; align-items: center; gap: 8pt; background-color: #F8FAFC; border: 1pt solid #E2E8F0; border-radius: 8pt; padding: 6pt 10pt;">
+                            <div style="width: 16pt; height: 16pt; border-radius: 50%; background-color: #7C3AED; color: white; display: flex; align-items: center; justify-content: center; font-size: 8pt; font-weight: 900;">{{ step.number }}</div>
+                            <div>
+                                <div style="font-size: 8.5pt; font-weight: bold; color: #1E293B;">{{ step.title }}</div>
+                                <div style="font-size: 7.5pt; color: #64748B; font-weight: 500;">{{ step.description }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="grid-2">
+            <div class="col-left" style="justify-content: center; gap: 10pt;">
+                <div class="card-title-tiny">Lead Automation</div>
+                {% for item in audit.automation_tracking %}
+                <div class="business-card" style="padding: 12pt; margin-bottom: 10pt;">
+                    <div style="font-size: 9.5pt; font-weight: 800; color: #7C3AED; text-transform: uppercase; margin-bottom: 4pt;">{{ item.title }}</div>
+                    <p style="font-size: 9pt; font-weight: bold; color: #475569; margin: 0; line-height: 1.4;">{{ item.desc }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="col-right" style="justify-content: center; gap: 10pt;">
+                <h4 style="font-size: 10pt; font-weight: 900; color: #1E293B; text-transform: uppercase; margin-bottom: 8pt;">System Infrastructure Benefits</h4>
+                <ul style="padding-left: 12pt; margin: 0; font-size: 9pt; font-weight: bold; color: #475569;">
+                    <li style="margin-bottom: 8pt;">Consolidates lead inquiries from all social channels into one source of truth.</li>
+                    <li style="margin-bottom: 8pt;">Removes manual follow-up delays, decreasing lead response time from hours to seconds.</li>
+                    <li>Provides direct analysis of customer conversion rate and acquisition metrics.</li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="slide-footer">
+        <div>Impression Audit AI Portal</div>
+        <div>Slide 9 of 11</div>
+    </div>
+</div>
+
+<!-- Slide 10: WhatsApp Platform Setup -->
+<div class="slide">
+    <div class="slide-grid-bg"></div>
+    <div class="slide-header">
+        <div class="header-left">
+            {% if logo_base64 %}
+            <img src="data:image/png;base64,{{ logo_base64 }}" class="logo-img" alt="Impression Logo">
+            {% endif %}
+            <div class="header-divider"></div>
+            <div class="header-category">Messaging</div>
+        </div>
+        <h2 class="slide-title">WhatsApp Setup</h2>
+    </div>
+
+    <div class="slide-body">
+        <div class="grid-2" style="grid-template-columns: 1.2fr 0.8fr;">
+            <div class="col-left">
+                <div>
+                    <h3 style="font-size: 8.5pt; font-weight: 900; color: #64748B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8pt;">{{ audit.whatsapp_setup.title }}</h3>
+                    <ul class="bullet-list-check">
+                        {% for bullet in audit.whatsapp_setup.bullets %}
+                        <li>
+                            <span class="bullet-check-dot">✓</span>
+                            <span>{{ bullet }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="business-card" style="background-color: #ECFDF5; border-color: #D1FAE5; padding: 10pt;">
+                    <div style="font-size: 7.5pt; font-weight: 900; color: #065F46; text-transform: uppercase; margin-bottom: 2pt;">Core Benefit</div>
+                    <p style="font-size: 8.5pt; font-weight: bold; color: #065F46; margin: 0; line-height: 1.3;">{{ audit.whatsapp_setup.benefit }}</p>
+                </div>
+            </div>
+            
+            <div class="col-right" style="justify-content: center; align-items: center;">
+                <h4 style="font-size: 8pt; font-weight: 900; color: #64748B; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 6pt;">Interactive Chatbot Demo</h4>
+                
+                <div class="phone-mockup-frame">
+                    <div class="phone-speaker-bar"></div>
+                    <div class="phone-top-bar">
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <span style="font-size: 7.5pt;">💬</span>
+                            <div>
+                                <div style="font-size: 7px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">{{ audit.audit_meta.client_name }} Bot</div>
+                                <div style="font-size: 5.5pt; color: #A7F3D0; font-weight: normal;">Online</div>
+                            </div>
+                        </div>
+                        <span style="font-size: 8px;">📞</span>
+                    </div>
+                    
+                    <div class="phone-chat-body">
+                        <div class="phone-msg-left">
+                            <span class="phone-msg-left-label">Customer</span>
+                            Hi, send wholesale catalog & prices
+                        </div>
+                        <div class="phone-msg-right">
+                            <span class="phone-msg-right-label">AI Chatbot</span>
+                            Hello! Welcome to {{ audit.audit_meta.client_name }}. Here is your options:<br>
+                            • View Catalog: <span style="color: #2563EB; font-weight: bold; text-decoration: underline;">CatalogLink</span><br>
+                            • Wholesale Prices: <span style="color: #2563EB; font-weight: bold; text-decoration: underline;">PriceList_PDF</span><br>
+                            • Raipur Store Location
+                        </div>
+                    </div>
+                    
+                    <div class="phone-input-bar-mock">
+                        <span>Type a message...</span>
+                        <span>✉️</span>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 6pt;">
+                    <span style="font-size: 7.5pt; font-weight: 900; color: #7C3AED; background-color: #F5F3FF; border: 1pt solid #E8E5FF; padding: 2pt 6pt; border-radius: 4pt; text-transform: uppercase;">
+                        Lead synced to Google Sheet
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-footer">
+        <div>Impression Audit AI Portal</div>
+        <div>Slide 10 of 11</div>
+    </div>
+</div>
+
+<!-- Slide 11: Next Recommendations (CTA) -->
+<div class="slide dark-slide">
+    <div class="slide-grid-bg" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0);"></div>
+    <div class="slide-header">
+        <div class="header-left">
+            {% if logo_base64 %}
+            <img src="data:image/png;base64,{{ logo_base64 }}" class="logo-img" alt="Impression Logo">
+            {% endif %}
+            <div class="header-divider"></div>
+            <div class="header-category">Next Action</div>
+        </div>
+        <h2 class="slide-title">Recommended Strategy</h2>
+    </div>
+
+    <div class="slide-body" style="align-items: center; justify-content: center; text-align: center;">
+        <div class="cta-header-tag">LET'S WORK TOGETHER</div>
+        <h2 class="cta-headline">{{ audit.cta.headline }}</h2>
+        <p class="cta-sub">{{ audit.cta.recommended_next_step }}</p>
+        <button class="cta-button">Initiate Integration</button>
+    </div>
+
+    <div class="slide-footer">
+        <div class="cta-contact-row">
+            <div>📞 PHONE: <span>{{ audit.cta.contact.phone }}</span></div>
+            <div>✉️ EMAIL: <span>{{ audit.cta.contact.email }}</span></div>
+        </div>
+        <div>Slide 11 of 11</div>
     </div>
 </div>
 

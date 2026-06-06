@@ -3,6 +3,7 @@ import Home from './pages/Home';
 import AuditResult from './pages/AuditResult';
 import Login from './components/Login';
 import { LogOut, ShieldCheck, User } from 'lucide-react';
+import { ImpressionLogo, ImpressionWordmark } from './components/ImpressionLogo';
 
 // Wrapper for Private Routes
 const ProtectedRoute = ({ children }) => {
@@ -32,18 +33,10 @@ function App() {
       {user && (
         <nav className="glass-card sticky top-0 z-[1000] px-8 py-4 flex items-center justify-between border-b border-slate-200/50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-               <img 
-                src="/logo.png" 
-                alt="CM" 
-                className="w-8 h-8 object-contain" 
-                onError={(e) => { e.target.src = "https://cubemoons.com/assets/logo/cubemoons-favicon.svg" }}
-              />
-            </div>
-            <div>
-              <span className="font-extrabold text-lg tracking-tight text-slate-900 block leading-none">Cubemoons</span>
-              <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Audit AI Portal</span>
-            </div>
+            <ImpressionLogo className="w-12 h-12" />
+            <span className="font-semibold text-xl tracking-widest text-slate-900 font-display uppercase ml-1">
+              Impression <span className="text-[#7C3AED]">Audit AI</span>
+            </span>
           </div>
           
           <div className="flex items-center gap-6">
@@ -86,11 +79,8 @@ function App() {
       </main>
 
       {user && (
-        <footer className="bg-white py-8 text-center text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] border-t border-slate-100">
-          <div className="flex items-center justify-center gap-2 mb-2 opacity-30">
-             <img src="/logo.png" alt="CM" className="w-8 h-8 object-contain" />
-          </div>
-          <p>&copy; {new Date().getFullYear()} Cubemoons Pvt. Ltd. • Strategic Internal Tool</p>
+        <footer className="bg-transparent py-8 text-center text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] border-t border-slate-200/50">
+          <p>&copy; {new Date().getFullYear()} Impression.pr • Strategic Internal Tool</p>
         </footer>
       )}
     </div>

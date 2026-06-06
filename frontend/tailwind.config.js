@@ -8,9 +8,12 @@ export default {
     extend: {
       colors: {
         brand: {
-          dark: '#0A0A0F',
-          orange: '#FF6B35',
-          purple: '#6C63FF',
+          dark: '#0A0A0A',
+          orange: '#A6A6A6',
+          purple: '#7C3AED',
+          silver: '#A6A6A6',
+          charcoal: '#111111',
+          offwhite: '#F6F6F6',
         }
       },
       fontFamily: {

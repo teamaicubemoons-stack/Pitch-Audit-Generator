@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 from routes.audit import router as audit_router
 from routes.auth import router as auth_router
 
-load_dotenv()
+load_dotenv(override=True)
 
 # ── Logging ────────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -26,8 +26,8 @@ logger = logging.getLogger(__name__)
 
 # ── FastAPI App ────────────────────────────────────────────────────────────────
 app = FastAPI(
-    title="Cubemoons Audit Generator API",
-    description="AI-powered client pitch audit generator for Cubemoons Pvt. Ltd.",
+    title="Impression Audit Generator API",
+    description="AI-powered client pitch audit generator for Impression.pr",
     version="1.0.0",
     docs_url="/api/docs",
     redoc_url="/api/redoc",

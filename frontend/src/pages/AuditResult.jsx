@@ -19,7 +19,7 @@ export default function AuditResult() {
     <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto animate-fade-in">
       <button 
         onClick={() => navigate('/')}
-        className="flex items-center gap-2 text-slate-500 hover:text-blue-600 mb-10 transition-all font-bold text-sm bg-white px-5 py-2.5 rounded-full border border-slate-100 shadow-sm hover:shadow-md print:hidden"
+        className="flex items-center gap-2 text-slate-600 hover:text-[#7C3AED] mb-10 transition-all font-bold text-sm bg-white px-5 py-2.5 rounded-full border border-slate-200/80 shadow-sm hover:shadow-md print:hidden"
       >
         <ArrowLeft size={18} />
         Back to Dashboard

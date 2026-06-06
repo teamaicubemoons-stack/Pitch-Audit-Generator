@@ -25,9 +25,9 @@ export default function VisualFlowchart({ data }) {
   const summary = data.summary_steps || [];
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-brand-dark to-gray-800 text-white px-8 py-5 text-center">
+      <div className="bg-gradient-to-r from-[#7C3AED] to-purple-800 text-white px-8 py-5 text-center border-b border-purple-700/20">
         <h3 className="text-xl font-black tracking-wide">{data.workflow_title || 'System Workflow'}</h3>
       </div>
 
@@ -43,13 +43,13 @@ export default function VisualFlowchart({ data }) {
                 {!isLast && idx % 3 !== 2 && (
                   <div className="hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-10 items-center">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M0 8h12M8 4l4 4-4 4" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round"/>
+                      <path d="M0 8h12M8 4l4 4-4 4" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
                     </svg>
                   </div>
                 )}
 
                 <div
-                  className="rounded-xl border-2 overflow-hidden h-full"
+                  className="rounded-xl border overflow-hidden h-full"
                   style={{ borderColor: color + '40' }}
                 >
                   {/* Step Header */}
@@ -67,11 +67,11 @@ export default function VisualFlowchart({ data }) {
                   </div>
 
                   {/* Step Body */}
-                  <div className="px-4 py-3 bg-white" style={{ backgroundColor: color + '08' }}>
-                    <p className="text-gray-600 text-xs mb-3 leading-relaxed">{step.description}</p>
+                  <div className="px-4 py-3 bg-slate-50/50" style={{ backgroundColor: color + '05' }}>
+                    <p className="text-slate-500 text-xs mb-3 leading-relaxed">{step.description}</p>
                     <ul className="space-y-1">
                       {(step.bullets || []).map((b, bi) => (
-                        <li key={bi} className="flex items-start gap-2 text-xs text-gray-700">
+                        <li key={bi} className="flex items-start gap-2 text-xs text-slate-700">
                           <span className="mt-0.5 flex-shrink-0" style={{ color }}>•</span>
                           <span>{b}</span>
                         </li>
@@ -86,8 +86,8 @@ export default function VisualFlowchart({ data }) {
 
         {/* Summary Timeline Bar */}
         {summary.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-gray-100">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 text-center">Complete Flow</p>
+          <div className="mt-6 pt-4 border-t border-slate-100">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 text-center">Complete Flow</p>
             <div className="flex items-center justify-center flex-wrap gap-0">
               {summary.map((label, idx) => (
                 <React.Fragment key={idx}>
@@ -98,7 +98,7 @@ export default function VisualFlowchart({ data }) {
                     {label}
                   </div>
                   {idx < summary.length - 1 && (
-                    <span className="text-gray-300 mx-1 text-sm">→</span>
+                    <span className="text-slate-400 mx-1 text-sm">→</span>
                   )}
                 </React.Fragment>
               ))}
@@ -108,20 +108,20 @@ export default function VisualFlowchart({ data }) {
 
         {/* Key Benefits */}
         {benefits.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-gray-100">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 text-center">Key Benefits</p>
+          <div className="mt-6 pt-4 border-t border-slate-100">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 text-center">Key Benefits</p>
             <div className="flex flex-wrap justify-center gap-3">
               {benefits.map((b, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-3 px-4 py-2 rounded-xl bg-gray-50 border border-gray-200"
+                  className="flex items-center gap-3 px-4 py-2 rounded-xl bg-slate-50 border border-slate-200/60"
                 >
-                  <div className="text-brand-orange">
+                  <div className="text-[#7C3AED]">
                     {getIcon(b.icon, 20)}
                   </div>
                   <div>
-                    <div className="font-black text-sm text-brand-dark">{b.title}</div>
-                    <div className="text-xs text-gray-500">{b.desc}</div>
+                    <div className="font-black text-sm text-slate-800">{b.title}</div>
+                    <div className="text-xs text-slate-500">{b.desc}</div>
                   </div>
                 </div>
               ))}

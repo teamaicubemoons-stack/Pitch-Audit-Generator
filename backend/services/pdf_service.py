@@ -30,6 +30,7 @@ async def generate_pdf(audit_data: dict, flowchart_data: dict = None) -> str:
     """
     Renders audit data using Puppeteer for pixel-perfect PDF parity.
     """
+    import base64
     env = _get_jinja_env()
     template = env.get_template("audit_template.html")
 
@@ -40,10 +41,21 @@ async def generate_pdf(audit_data: dict, flowchart_data: dict = None) -> str:
         with open(css_path, "r", encoding="utf-8") as f:
             css_content = f.read()
 
+    # Read logo image as base64
+    logo_path = Path(__file__).parent.parent.parent / "impression.png"
+    logo_base64 = ""
+    if logo_path.exists():
+        try:
+            with open(logo_path, "rb") as img_f:
+                logo_base64 = base64.b64encode(img_f.read()).decode("utf-8")
+        except Exception as e:
+            logger.error(f"Failed to read logo.png for base64 injection: {e}")
+
     html_content = template.render(
         audit=audit_data,
         flowchart_data=flowchart_data,
-        css_content=css_content
+        css_content=css_content,
+        logo_base64=logo_base64
     )
 
     file_id = str(uuid4())

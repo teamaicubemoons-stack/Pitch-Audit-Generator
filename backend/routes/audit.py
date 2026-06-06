@@ -66,7 +66,7 @@ def upload_to_drive(file_path: str, file_name: str):
 
 @router.get("/health")
 async def health_check():
-    return {"status": "ok", "service": "Cubemoons Audit Generator"}
+    return {"status": "ok", "service": "Impression Audit Generator"}
 
 
 @router.post("/generate-audit", response_model=AuditOutput)
@@ -152,7 +152,7 @@ async def generate_audit(inp: AuditFormInput):
         # ── DRIVE UPLOAD ──
         drive_link = None
         if pdf_path and os.path.exists(pdf_path):
-            drive_link = upload_to_drive(pdf_path, f"Cubemoons_Audit_{company_name}.pdf")
+            drive_link = upload_to_drive(pdf_path, f"Impression_Audit_{company_name}.pdf")
         
         final_link = drive_link or f"http://localhost:8000{pdf_url}"
 
@@ -266,13 +266,13 @@ async def download_pdf(filename: str):
         return FileResponse(
             path=str(file_path),
             media_type="application/pdf",
-            filename=f"Cubemoons_Audit_{safe_name}",
+            filename=f"Impression_Audit_{safe_name}",
         )
     elif safe_name.endswith(".html"):
         return FileResponse(
             path=str(file_path),
             media_type="text/html",
-            filename=f"Cubemoons_Audit_{safe_name}",
+            filename=f"Impression_Audit_{safe_name}",
         )
     else:
         raise HTTPException(status_code=400, detail="Unsupported file type")

@@ -21,7 +21,7 @@ from prompts.audit_prompts import (
     PROMPT_PDF_HTML_GENERATION,
 )
 
-load_dotenv()
+load_dotenv(override=True)
 logger = logging.getLogger(__name__)
 
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")
@@ -60,21 +60,27 @@ async def _call_gpt(user_prompt: str, max_tokens: int = OPENAI_MAX_TOKENS, retri
 
 def _parse_json(raw: str) -> dict:
     """Strip markdown fences and parse JSON robustly."""
-    # Remove ```json ... ``` if present
     raw = raw.strip()
-    if raw.startswith("```"):
-        raw = raw.split("```", 2)[-1] if raw.count("```") >= 2 else raw
-        # Remove language label line
-        lines = raw.splitlines()
-        if lines and not lines[0].startswith("{"):
-            lines = lines[1:]
-        raw = "\n".join(lines)
-    raw = raw.rstrip("`").strip()
+    # If the response is wrapped in markdown code blocks, extract the content
+    if "```" in raw:
+        parts = raw.split("```")
+        for part in parts:
+            part_clean = part.strip()
+            # Strip language specifier if present
+            if part_clean.startswith("json"):
+                part_clean = part_clean[4:].strip()
+            if part_clean.startswith("{") or part_clean.startswith("["):
+                raw = part_clean
+                break
+    else:
+        raw = raw.strip()
+
     try:
         return json.loads(raw)
     except json.JSONDecodeError as e:
         logger.error(f"JSON parse failed: {e}\nRaw: {raw[:500]}")
         return {"raw_response": raw, "parse_error": str(e)}
+
 
 
 # ─── Public Service Functions ──────────────────────────────────────────────────
