@@ -108,7 +108,23 @@
                     <div class="meta-icon-box">🌐</div>
                     <div>
                         <div style="font-size: 7.5pt; font-weight: 900; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px;">Current Presence</div>
-                        <div style="font-size: 9pt; font-weight: bold; color: #1E293B;">{{ audit.company_overview.digital_presence }}</div>
+                        <div style="font-size: 9pt; font-weight: bold; color: #1E293B;">
+                            {{ audit.company_overview.digital_presence }}
+                            {% if audit.company_overview.linkedin_url or audit.company_overview.social_media_handles %}
+                            <div style="display: flex; gap: 8px; margin-top: 4px; font-size: 7.5pt; font-weight: bold;">
+                                {% if audit.company_overview.linkedin_url %}
+                                <a href="{{ audit.company_overview.linkedin_url }}" target="_blank" style="color: #7C3AED; text-decoration: underline;">LinkedIn</a>
+                                {% endif %}
+                                {% if audit.company_overview.social_media_handles %}
+                                    {% if audit.company_overview.social_media_handles.startswith('http') %}
+                                    <a href="{{ audit.company_overview.social_media_handles }}" target="_blank" style="color: #7C3AED; text-decoration: underline;">Social Profile</a>
+                                    {% else %}
+                                    <span style="color: #475569; font-weight: normal;">({{ audit.company_overview.social_media_handles }})</span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -417,11 +433,11 @@
                 <div class="chat-container-mock">
                     <div class="chat-header-mock">
                         <span style="display: inline-block; width: 4pt; height: 4pt; border-radius: 50%; background-color: #10B981; margin-right: 4pt;"></span>
-                        Simulated B2B Buyer Query Thread
+                        Simulated Buyer Query Thread
                     </div>
                     <div style="padding: 8pt; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
                         <div class="chat-bubble-left">
-                            <span>Wholesale Buyer</span>
+                            <span>{{ audit.current_gaps.buyer_persona or "Target Customer" }}</span>
                             "{{ audit.current_gaps.buyer_questions }}"
                         </div>
                         <div class="chat-bubble-right">
@@ -627,15 +643,12 @@
                     
                     <div class="phone-chat-body">
                         <div class="phone-msg-left">
-                            <span class="phone-msg-left-label">Customer</span>
-                            Hi, send wholesale catalog & prices
+                            <span class="phone-msg-left-label">{{ audit.current_gaps.buyer_persona or "Customer" }}</span>
+                            {{ audit.whatsapp_setup.chat_demo_customer or "Hi, I'd like to know more about your services." }}
                         </div>
                         <div class="phone-msg-right">
                             <span class="phone-msg-right-label">AI Chatbot</span>
-                            Hello! Welcome to {{ audit.audit_meta.client_name }}. Here is your options:<br>
-                            • View Catalog: <span style="color: #2563EB; font-weight: bold; text-decoration: underline;">CatalogLink</span><br>
-                            • Wholesale Prices: <span style="color: #2563EB; font-weight: bold; text-decoration: underline;">PriceList_PDF</span><br>
-                            • Raipur Store Location
+                            {{ audit.whatsapp_setup.chat_demo_bot | replace('\n', '<br>') | safe }}
                         </div>
                     </div>
                     

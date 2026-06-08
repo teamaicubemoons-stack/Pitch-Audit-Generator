@@ -171,6 +171,14 @@ export default function AuditPreview({ auditData, pdfUrl }) {
     }
   };
 
+  const handleDownloadPDF = () => {
+    if (pdfUrl) {
+      window.open(pdfUrl, '_blank');
+    } else {
+      handleExportPDF();
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto py-12 px-6 bg-slate-50 min-h-screen text-slate-900">
       <div className="flex justify-between items-center mb-10">
@@ -182,12 +190,12 @@ export default function AuditPreview({ auditData, pdfUrl }) {
           </p>
         </div>
         <button 
-          onClick={handleExportPDF}
+          onClick={handleDownloadPDF}
           disabled={isExporting}
           className="flex items-center gap-3 px-6 py-3 bg-[#7C3AED] text-white rounded-xl font-bold shadow-xl shadow-[#7C3AED]/20 hover:bg-[#6D28D9] transform hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
         >
-          {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Printer size={18} />}
-          {isExporting ? 'Generating Deck PDF...' : 'Export Deck PDF'}
+          <Download size={18} />
+          Download High-Fidelity PDF
         </button>
       </div>
 
@@ -298,9 +306,32 @@ export default function AuditPreview({ auditData, pdfUrl }) {
                 <div className="p-3 rounded-xl bg-pink-50 text-pink-600 shrink-0 border border-pink-100">
                   <Globe size={18} />
                 </div>
-                <div>
+                <div className="flex-grow">
                   <div className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Current Presence</div>
                   <div className="text-sm font-bold text-slate-800">{s2.digital_presence}</div>
+                  
+                  {/* Clickable Social Links */}
+                  {(s2.linkedin_url || s2.social_media_handles) && (
+                    <div className="flex gap-3 mt-2 pt-2 border-t border-slate-100 text-[10px] font-bold text-[#7C3AED]">
+                      {s2.linkedin_url && (
+                        <a href={s2.linkedin_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline">
+                          <Icons.Linkedin size={12} /> LinkedIn
+                        </a>
+                      )}
+                      {s2.social_media_handles && (
+                        s2.social_media_handles.startsWith('http') ? (
+                          <a href={s2.social_media_handles} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline">
+                            <Icons.Instagram size={12} /> Social Profile
+                          </a>
+                        ) : (
+                          <span className="flex items-center gap-1">
+                            <Icons.Share2 size={12} className="text-slate-400 font-normal" />
+                            <span className="text-slate-650 font-normal">{s2.social_media_handles}</span>
+                          </span>
+                        )
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -319,21 +350,22 @@ export default function AuditPreview({ auditData, pdfUrl }) {
         {/* Slide 3: Agenda */}
         <Slide title="The Game Plan" category="Agenda" slideNumber={3}>
           <div className="relative max-w-4xl mx-auto py-2">
-            {/* Connection Line */}
-            <div className="absolute top-1/2 left-4 right-4 h-0.5 border-t-2 border-dashed border-slate-200 -translate-y-1/2 hidden md:block"></div>
-            
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
               {(s3_agenda || []).map((item, idx) => (
-                <div key={idx} className="flex flex-col justify-between p-4 bg-white border border-slate-200/80 rounded-2xl h-36 hover:border-[#7C3AED]/50 hover:shadow-md transition-all group">
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-xs font-black text-[#7C3AED] bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100 group-hover:bg-[#7C3AED] group-hover:text-white transition-colors">
-                      {String(idx + 1).padStart(2, '0')}
+                <div key={idx} className="relative flex flex-col justify-between p-5 bg-gradient-to-br from-white to-slate-50 border border-slate-200/85 rounded-2xl h-32 hover:border-[#7C3AED]/40 hover:shadow-lg transition-all duration-300 group cursor-default">
+                  {/* Subtle step background number */}
+                  <div className="absolute right-3 bottom-1 text-slate-100 font-black text-6xl opacity-35 select-none group-hover:text-[#7C3AED]/5 transition-colors font-display">
+                    {String(idx + 1).padStart(2, '0')}
+                  </div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-[10px] font-black text-[#7C3AED] bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-100/50 group-hover:bg-[#7C3AED] group-hover:text-white transition-all duration-300">
+                      Phase {idx + 1}
                     </span>
-                    <div className="text-slate-400 group-hover:text-[#7C3AED] transition-colors">
+                    <div className="text-slate-400 group-hover:text-[#7C3AED] transition-colors duration-300">
                       {getAgendaIcon(item)}
                     </div>
                   </div>
-                  <span className="text-xs font-black text-slate-700 tracking-wide uppercase group-hover:text-slate-900 transition-colors">
+                  <span className="text-xs font-black text-slate-750 tracking-wider uppercase group-hover:text-slate-900 transition-colors z-10 relative mt-2">
                     {item}
                   </span>
                 </div>
@@ -368,16 +400,16 @@ export default function AuditPreview({ auditData, pdfUrl }) {
             <div className="col-span-6 border-l border-slate-100 pl-8 flex flex-col justify-between">
               <div>
                 <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Color Archetype</h3>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-2.5">
                   {(brand.suggested_colors || []).map((color, idx) => (
-                    <div key={idx} className="flex items-center gap-3 p-2.5 bg-white border border-slate-150 rounded-xl shadow-sm hover:shadow-md transition-all">
+                    <div key={idx} className="flex flex-col bg-white border border-slate-150 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all">
                       <div 
-                        className="w-10 h-10 rounded-full border border-slate-200 shadow-sm shrink-0" 
+                        className="w-full h-11 transition-transform hover:scale-105" 
                         style={{ backgroundColor: color.value }}
                       />
-                      <div>
-                        <div className="text-[11px] font-black text-slate-800 leading-tight">{color.name}</div>
-                        <div className="text-[9px] font-black text-slate-400 font-mono uppercase mt-0.5 tracking-wider">{color.value}</div>
+                      <div className="p-2.5">
+                        <div className="text-[10px] font-black text-slate-800 truncate leading-tight">{color.name}</div>
+                        <div className="text-[9px] font-mono text-slate-400 uppercase mt-1 tracking-wider">{color.value}</div>
                       </div>
                     </div>
                   ))}
@@ -385,12 +417,12 @@ export default function AuditPreview({ auditData, pdfUrl }) {
               </div>
               
               {/* Added a dynamic aesthetic style summary to balance the slide */}
-              <div className="bg-slate-50 border border-slate-200/60 p-3.5 rounded-xl flex items-center justify-between mt-3">
+              <div className="bg-slate-50 border border-slate-250/60 p-3 rounded-xl flex items-center justify-between mt-2">
                 <div className="flex items-center gap-2">
-                  <Sparkles size={16} className="text-[#7C3AED]" />
-                  <span className="text-[10px] font-black text-slate-700 uppercase tracking-wide">Aesthetic Tone Match</span>
+                  <Sparkles size={15} className="text-[#7C3AED]" />
+                  <span className="text-[10px] font-black text-slate-755 uppercase tracking-wide">Aesthetic Tone Match</span>
                 </div>
-                <span className="text-[9px] font-black uppercase tracking-widest bg-purple-100 text-[#7C3AED] px-2 py-0.5 rounded">Premium &amp; Modern</span>
+                <span className="text-[9px] font-black uppercase tracking-widest bg-purple-100 text-[#7C3AED] px-2.5 py-0.5 rounded">Premium &amp; Modern</span>
               </div>
             </div>
           </div>
@@ -398,42 +430,34 @@ export default function AuditPreview({ auditData, pdfUrl }) {
 
         {/* Slide 5: Competitor Benchmarking */}
         <Slide title="Competitor Benchmarking" category="Competition" slideNumber={5}>
-          <div className="overflow-hidden border border-slate-200/80 rounded-2xl shadow-sm my-auto">
-            <table className="w-full border-collapse text-left bg-white">
+          <div className="overflow-hidden border border-slate-200/80 rounded-2xl shadow-sm my-auto bg-white">
+            <table className="w-full border-collapse text-left">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/70">
-                  <th className="py-3 px-5 text-[9px] font-black uppercase tracking-wider text-slate-500">Brand Entity</th>
-                  <th className="py-3 px-5 text-[9px] font-black uppercase tracking-wider text-slate-500">
-                    <span className="flex items-center gap-1.5"><Instagram size={12} className="text-[#E1306C]" /> Instagram</span>
-                  </th>
-                  <th className="py-3 px-5 text-[9px] font-black uppercase tracking-wider text-slate-500">
-                    <span className="flex items-center gap-1.5"><Globe size={12} className="text-blue-500" /> Website Hub</span>
-                  </th>
-                  <th className="py-3 px-5 text-[9px] font-black uppercase tracking-wider text-slate-500">
-                    <span className="flex items-center gap-1.5"><MessageSquare size={12} className="text-emerald-500" /> WhatsApp</span>
-                  </th>
-                  <th className="py-3 px-5 text-[9px] font-black uppercase tracking-wider text-slate-500">
-                    <span className="flex items-center gap-1.5"><Youtube size={12} className="text-red-500" /> YouTube</span>
-                  </th>
+                <tr className="bg-slate-50 border-b border-slate-200">
+                  <th className="py-3.5 px-6 text-[10px] font-black uppercase tracking-wider text-slate-500">Brand / Entity</th>
+                  <th className="py-3.5 px-6 text-[10px] font-black uppercase tracking-wider text-slate-500 text-center">Instagram</th>
+                  <th className="py-3.5 px-6 text-[10px] font-black uppercase tracking-wider text-slate-500 text-center">Website Hub</th>
+                  <th className="py-3.5 px-6 text-[10px] font-black uppercase tracking-wider text-slate-500 text-center">WhatsApp</th>
+                  <th className="py-3.5 px-6 text-[10px] font-black uppercase tracking-wider text-slate-500 text-center">YouTube</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-100">
                 {(competitors.comparison_table || []).map((row, idx) => {
                   const isClient = idx === 0;
                   return (
                     <tr 
                       key={idx} 
-                      className={`border-b border-slate-100 last:border-0 ${isClient ? 'bg-[#7C3AED]/5 font-bold border-l-4 border-l-[#7C3AED]' : 'hover:bg-slate-50/40'}`}
+                      className={`transition-colors ${isClient ? 'bg-[#7C3AED]/5 font-bold border-l-4 border-l-[#7C3AED]' : 'hover:bg-slate-50/30'}`}
                     >
-                      <td className="py-3.5 px-5 text-xs font-black text-slate-800 flex items-center gap-2">
-                        {isClient && <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED] animate-pulse"></span>}
-                        {row.entity}
-                        {isClient && <span className="text-[7.5px] bg-[#7C3AED] text-white px-1.5 py-0.5 rounded font-black tracking-widest uppercase">You</span>}
+                      <td className="py-4 px-6 text-sm font-black text-slate-800 flex items-center gap-2">
+                        {isClient && <span className="w-2 h-2 rounded-full bg-[#7C3AED] animate-ping shrink-0" />}
+                        <span className="truncate">{row.entity}</span>
+                        {isClient && <span className="text-[8px] bg-[#7C3AED] text-white px-2 py-0.5 rounded font-black tracking-widest uppercase shrink-0">YOU</span>}
                       </td>
-                      <td className="py-3.5 px-5 text-xs font-bold text-slate-650">{renderCompetitorBadge(row.instagram)}</td>
-                      <td className="py-3.5 px-5 text-xs font-bold text-slate-650">{renderCompetitorBadge(row.text_website || row.website)}</td>
-                      <td className="py-3.5 px-5 text-xs font-bold text-slate-650">{renderCompetitorBadge(row.text_whatsapp || row.whatsapp)}</td>
-                      <td className="py-3.5 px-5 text-xs font-bold text-slate-650">{renderCompetitorBadge(row.text_youtube || row.youtube)}</td>
+                      <td className="py-4 px-6 text-center">{renderCompetitorBadge(row.instagram)}</td>
+                      <td className="py-4 px-6 text-center">{renderCompetitorBadge(row.text_website || row.website)}</td>
+                      <td className="py-4 px-6 text-center">{renderCompetitorBadge(row.text_whatsapp || row.whatsapp)}</td>
+                      <td className="py-4 px-6 text-center">{renderCompetitorBadge(row.text_youtube || row.youtube)}</td>
                     </tr>
                   );
                 })}
@@ -448,12 +472,12 @@ export default function AuditPreview({ auditData, pdfUrl }) {
             {(usps || []).slice(0, 6).map((usp, idx) => {
               const { title, desc } = splitUSP(usp);
               return (
-                <div key={idx} className="flex flex-col p-4 bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:border-[#7C3AED]/40 hover:shadow-md transition-all group">
-                  <div className="w-8 h-8 rounded-xl bg-purple-50 text-[#7C3AED] flex items-center justify-center shrink-0 border border-purple-100 mb-3 group-hover:bg-[#7C3AED] group-hover:text-white transition-colors">
+                <div key={idx} className="relative flex flex-col p-5 bg-gradient-to-br from-white to-slate-50/50 border border-slate-200/85 rounded-[1.5rem] shadow-sm hover:border-[#7C3AED]/30 hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 group cursor-default">
+                  <div className="w-9 h-9 rounded-xl bg-purple-50 text-[#7C3AED] flex items-center justify-center shrink-0 border border-purple-100 mb-3 group-hover:bg-[#7C3AED] group-hover:text-white transition-all duration-300">
                     {getUspIcon(idx)}
                   </div>
-                  <h4 className="text-xs font-black text-slate-850 uppercase tracking-wide mb-1">{title}</h4>
-                  <p className="text-[11px] font-semibold text-slate-500 leading-relaxed">{desc}</p>
+                  <h4 className="text-sm font-black text-slate-805 uppercase tracking-wide mb-1.5">{title}</h4>
+                  <p className="text-[12px] font-semibold text-slate-500 leading-relaxed">{desc}</p>
                 </div>
               );
             })}
@@ -489,14 +513,14 @@ export default function AuditPreview({ auditData, pdfUrl }) {
                 {/* Simulated Header */}
                 <div className="bg-[#075E54] text-white px-3 py-1.5 text-[9px] font-bold flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
-                  <span>Simulated B2B Buyer Query Thread</span>
+                  <span>Simulated Buyer Query Thread</span>
                 </div>
                 
                 {/* Chat Bubbles */}
                 <div className="p-3 flex-grow flex flex-col justify-between text-[10px]">
                   {/* Customer message (What Buyers Ask) */}
                   <div className="bg-white text-slate-700 p-2 rounded-lg rounded-tl-none shadow-sm self-start max-w-[85%]">
-                    <span className="block text-[7px] font-black text-purple-600 uppercase mb-0.5">Wholesale Buyer</span>
+                    <span className="block text-[7px] font-black text-purple-600 uppercase mb-0.5">{gaps.buyer_persona || "Target Customer"}</span>
                     "{gaps.buyer_questions}"
                   </div>
 
@@ -543,30 +567,30 @@ export default function AuditPreview({ auditData, pdfUrl }) {
                 activeColor = "bg-emerald-500";
                 bgColor = "bg-emerald-50";
               }
-
+              
               return (
-                <div key={idx} className="flex flex-col justify-between p-4 bg-white border border-slate-200/80 rounded-2xl h-[125px] hover:shadow-md hover:border-[#7C3AED]/30 transition-all group relative overflow-hidden">
-                  <div className="absolute right-3 top-3">
-                    <Activity size={12} className="text-slate-300 group-hover:text-[#7C3AED] transition-colors" />
+                <div key={idx} className="flex flex-col justify-between p-5 bg-gradient-to-br from-white to-slate-50/50 border border-slate-200/85 rounded-[1.5rem] h-[135px] hover:shadow-lg hover:border-[#7C3AED]/30 transition-all duration-300 group relative overflow-hidden cursor-default">
+                  <div className="absolute right-4 top-4 opacity-40 group-hover:opacity-100 transition-opacity">
+                    <Activity size={14} className="text-slate-300 group-hover:text-[#7C3AED] transition-colors animate-pulse" />
                   </div>
                   
-                  <span className="text-xs font-black text-slate-750 leading-tight group-hover:text-slate-900 transition-colors pr-3">{item.metric}</span>
+                  <span className="text-xs font-black text-slate-700 leading-tight group-hover:text-slate-900 transition-colors pr-4">{item.metric}</span>
                   
-                  <div className="space-y-2">
-                    <div className="space-y-1">
-                      <div className="flex justify-between items-center text-[8px] font-bold text-slate-400">
+                  <div className="space-y-2.5">
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-wider text-slate-400">
                         <span>Health Indicator</span>
                         <span className={activeColor.replace('bg-', 'text-')}>{progress}%</span>
                       </div>
-                      <div className={`w-full h-1.5 rounded-full ${bgColor}`}>
+                      <div className={`w-full h-2 rounded-full ${bgColor} overflow-hidden`}>
                         <div className={`h-full rounded-full ${activeColor}`} style={{ width: `${progress}%` }}></div>
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: item.color }}></span>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: item.color }}></span>
                       <span 
-                        className="px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-wider shadow-sm text-center flex-grow"
+                        className="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm text-center flex-grow"
                         style={{ backgroundColor: item.color + '10', color: item.color, border: `1px solid ${item.color}25` }}
                       >
                         {item.status}
@@ -684,16 +708,22 @@ export default function AuditPreview({ auditData, pdfUrl }) {
                 <div className="flex-grow bg-[#ECE5DD] p-2.5 space-y-2 overflow-y-auto flex flex-col justify-start text-[8px] leading-normal">
                   {/* Customer message */}
                   <div className="self-start bg-white text-slate-750 p-2 rounded-lg rounded-tl-none shadow-sm max-w-[85%]">
-                    <div className="font-bold text-[6px] text-purple-600 mb-0.5">Customer</div>
-                    Hi, send wholesale catalog &amp; prices
+                    <div className="font-bold text-[6px] text-purple-600 mb-0.5">{gaps.buyer_persona || "Customer"}</div>
+                    {whatsapp.chat_demo_customer || "Hi, I'd like to check your services."}
                   </div>
                   {/* Bot Response */}
                   <div className="self-end bg-[#DCF8C6] text-slate-750 p-2 rounded-lg rounded-tr-none shadow-sm max-w-[85%]">
                     <div className="font-bold text-[6px] text-emerald-700 mb-0.5">AI Chatbot</div>
-                    Hello! Welcome to {meta.client_name || 'our catalog'}. Here is your options:<br/>
-                    • View Catalog: <span className="text-blue-600 font-bold underline cursor-pointer">CatalogLink</span><br/>
-                    • Wholesale Prices: <span className="text-blue-600 font-bold underline cursor-pointer">PriceList_PDF</span><br/>
-                    • Raipur Store Location
+                    {whatsapp.chat_demo_bot ? (
+                      <div dangerouslySetInnerHTML={{ __html: whatsapp.chat_demo_bot.replace(/\n/g, '<br/>') }} />
+                    ) : (
+                      <div>
+                        Hello! Welcome to {meta.client_name || 'our catalog'}. Here is your options:<br/>
+                        • View Catalog: <span className="text-blue-600 font-bold underline cursor-pointer">CatalogLink</span><br/>
+                        • Services / Consultation: <span className="text-blue-600 font-bold underline cursor-pointer">Details_PDF</span><br/>
+                        • Store / Office Location
+                      </div>
+                    )}
                   </div>
                 </div>
                 

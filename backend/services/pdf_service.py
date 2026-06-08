@@ -1,5 +1,5 @@
 """
-PDF Service — High-fidelity enterprise PDF generation using Pyppeteer (Chromium).
+PDF Service — High-fidelity enterprise PDF generation using Playwright (Chromium).
 """
 
 import os
@@ -8,7 +8,7 @@ import asyncio
 from uuid import uuid4
 from pathlib import Path
 import jinja2
-from pyppeteer import launch
+from playwright.sync_api import sync_playwright
 
 logger = logging.getLogger(__name__)
 
@@ -26,9 +26,61 @@ def _get_jinja_env() -> jinja2.Environment:
     )
 
 
+def _generate_pdf_sync(html_content: str, pdf_path: str, chrome_path: str = None) -> None:
+    launch_kwargs = {
+        "headless": True,
+        "args": ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+    }
+    if chrome_path:
+        launch_kwargs["executable_path"] = chrome_path
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(**launch_kwargs)
+        context = browser.new_context(viewport={'width': 1280, 'height': 800})
+        page = context.new_page()
+        
+        # Set content and wait for network idle
+        page.set_content(html_content, wait_until='networkidle')
+        
+        # Generate PDF
+        page.pdf(
+            path=pdf_path,
+            format='A4',
+            landscape=True,
+            print_background=True,
+            margin={
+                'top': '0mm',
+                'right': '0mm',
+                'bottom': '0mm',
+                'left': '0mm'
+            }
+        )
+        browser.close()
+
+
+def _convert_raw_html_to_pdf_sync(html_content: str, pdf_path: str, chrome_path: str = None) -> None:
+    launch_kwargs = {"headless": True, "args": ['--no-sandbox']}
+    if chrome_path:
+        launch_kwargs["executable_path"] = chrome_path
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(**launch_kwargs)
+        context = browser.new_context()
+        page = context.new_page()
+        page.set_content(html_content, wait_until='networkidle')
+        page.pdf(
+            path=pdf_path,
+            format='A4',
+            landscape=True,
+            print_background=True
+        )
+        browser.close()
+
+
 async def generate_pdf(audit_data: dict, flowchart_data: dict = None) -> str:
     """
-    Renders audit data using Puppeteer for pixel-perfect PDF parity.
+    Renders audit data using Playwright for pixel-perfect PDF parity.
+    Runs synchronously in a separate thread to avoid Windows NotImplementedError.
     """
     import base64
     env = _get_jinja_env()
@@ -60,46 +112,23 @@ async def generate_pdf(audit_data: dict, flowchart_data: dict = None) -> str:
 
     file_id = str(uuid4())
     pdf_path = os.path.join(PDF_OUTPUT_DIR, f"{file_id}.pdf")
+    html_path = os.path.join(PDF_OUTPUT_DIR, f"{file_id}.html")
+
+    # Always write the HTML for debugging/preview fallback
+    try:
+        with open(html_path, "w", encoding="utf-8") as f:
+            f.write(html_content)
+    except Exception as e:
+        logger.error(f"Failed to save debug HTML: {e}")
 
     try:
-        # Use CHROME_PATH env var for Linux/AWS, otherwise let pyppeteer find it
         chrome_path = os.getenv("CHROME_PATH")
-        launch_kwargs = {
-            "headless": True,
-            "args": ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-        }
-        if chrome_path:
-            launch_kwargs["executablePath"] = chrome_path
-
-        browser = await launch(**launch_kwargs)
-        page = await browser.newPage()
-        
-        # Set viewport to A4 Landscape equivalent for rendering math
-        await page.setViewport({'width': 1280, 'height': 800})
-        
-        # Set content
-        await page.setContent(html_content, waitUntil='networkidle0')
-        
-        # Generate PDF
-        await page.pdf({
-            'path': pdf_path,
-            'format': 'A4',
-            'landscape': True,
-            'printBackground': True,
-            'margin': {
-                'top': '10mm',
-                'right': '10mm',
-                'bottom': '10mm',
-                'left': '10mm'
-            }
-        })
-        
-        await browser.close()
-        logger.info(f"Enterprise PDF generated via Puppeteer: {pdf_path}")
+        await asyncio.to_thread(_generate_pdf_sync, html_content, pdf_path, chrome_path)
+        logger.info(f"Enterprise PDF generated via Playwright: {pdf_path}")
         return pdf_path
 
     except Exception as e:
-        logger.error(f"Puppeteer rendering failed: {e}")
+        logger.error(f"Playwright rendering failed: {e}")
         # Fallback to HTML
         html_path = os.path.join(PDF_OUTPUT_DIR, f"{file_id}.html")
         with open(html_path, "w", encoding="utf-8") as f:
@@ -109,31 +138,21 @@ async def generate_pdf(audit_data: dict, flowchart_data: dict = None) -> str:
 
 async def convert_raw_html_to_pdf(html_content: str) -> str:
     """
-    Directly converts raw AI-generated HTML to PDF using Puppeteer.
+    Directly converts raw AI-generated HTML to PDF using Playwright.
+    Runs synchronously in a separate thread to avoid Windows NotImplementedError.
     """
     file_id = str(uuid4())
     pdf_path = os.path.join(PDF_OUTPUT_DIR, f"{file_id}.pdf")
 
     try:
         chrome_path = os.getenv("CHROME_PATH")
-        launch_kwargs = {"headless": True, "args": ['--no-sandbox']}
-        if chrome_path:
-            launch_kwargs["executablePath"] = chrome_path
-
-        browser = await launch(**launch_kwargs)
-        page = await browser.newPage()
-        await page.setContent(html_content, waitUntil='networkidle0')
-        await page.pdf({
-            'path': pdf_path,
-            'format': 'A4',
-            'landscape': True,
-            'printBackground': True
-        })
-        await browser.close()
+        await asyncio.to_thread(_convert_raw_html_to_pdf_sync, html_content, pdf_path, chrome_path)
         return pdf_path
     except Exception as e:
-        logger.error(f"AI-HTML Puppeteer conversion failed: {e}")
+        logger.error(f"AI-HTML Playwright conversion failed: {e}")
         html_path = os.path.join(PDF_OUTPUT_DIR, f"{file_id}.html")
         with open(html_path, "w", encoding="utf-8") as f:
             f.write(html_content)
         return html_path
+
+

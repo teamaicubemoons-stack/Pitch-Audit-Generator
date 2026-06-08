@@ -138,10 +138,32 @@ def handle_no_online_presence(inp: AuditFormInput, partial_data: dict) -> dict:
 
 # ─── HTTP helpers ──────────────────────────────────────────────────────────────
 
-async def _serper_search(query: str, num: int = 5) -> list[dict]:
-    """Google search via Serper API."""
-    if not SERPER_API_KEY:
+async def _free_search(query: str, num: int = 5) -> list[dict]:
+    """Free search using ddgs as fallback."""
+    try:
+        from ddgs import DDGS
+        def sync_search():
+            with DDGS() as ddgs:
+                return list(ddgs.text(query, max_results=num))
+        
+        raw_results = await asyncio.to_thread(sync_search)
+        mapped_results = []
+        for r in raw_results:
+            mapped_results.append({
+                "title": r.get("title", ""),
+                "snippet": r.get("body", ""),
+                "link": r.get("href", ""),
+            })
+        return mapped_results
+    except Exception as e:
+        logger.warning(f"Free search fallback failed for '{query}': {e}")
         return []
+
+
+async def _serper_search(query: str, num: int = 5) -> list[dict]:
+    """Google search via Serper API, falling back to free search when no key is configured."""
+    if not SERPER_API_KEY:
+        return await _free_search(query, num)
     try:
         async with httpx.AsyncClient(timeout=RESEARCH_TIMEOUT) as client:
             resp = await client.post(
@@ -153,7 +175,8 @@ async def _serper_search(query: str, num: int = 5) -> list[dict]:
             return data.get("organic", [])
     except Exception as e:
         logger.warning(f"Serper search failed for '{query}': {e}")
-        return []
+        return await _free_search(query, num)
+
 
 
 async def _ddg_search(query: str) -> str:

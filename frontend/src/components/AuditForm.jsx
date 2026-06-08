@@ -71,6 +71,14 @@ export default function AuditForm({ onSubmit, isSubmitting }) {
                   <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Location</label>
                   <input type="text" name="location" value={formData.location} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50/50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] rounded-xl outline-none font-medium text-sm" placeholder="e.g. Remote / Mumbai" />
                 </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">LinkedIn Profile URL</label>
+                  <input type="url" name="linkedin_url" value={formData.linkedin_url} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50/50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] rounded-xl outline-none font-medium text-sm" placeholder="https://linkedin.com/company/..." />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Social Media Links / Handles</label>
+                  <input type="text" name="social_media_handles" value={formData.social_media_handles} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50/50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] rounded-xl outline-none font-medium text-sm" placeholder="e.g. Instagram link, Facebook link" />
+                </div>
               </div>
             </motion.div>
           )}

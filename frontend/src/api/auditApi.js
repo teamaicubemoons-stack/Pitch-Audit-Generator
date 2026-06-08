@@ -10,5 +10,9 @@ export const generateAudit = async (formData) => {
 
 export const getPdfUrl = (path) => {
   if (!path) return null;
-  return `/api${path}`;
+  const cleanPath = path.startsWith('/api') ? path : `/api${path}`;
+  if (window.location.port === '3000') {
+    return `http://localhost:8000${cleanPath}`;
+  }
+  return cleanPath;
 };

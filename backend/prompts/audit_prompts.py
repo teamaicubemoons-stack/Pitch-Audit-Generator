@@ -92,6 +92,9 @@ CLIENT CONTEXT:
 GAP ANALYSIS RESULTS:
 {gap_analysis}
 
+COMPANY RESEARCH (WEB SEARCH & SCRAPING FINDINGS):
+{company_research}
+
 INDUSTRY RESEARCH:
 {industry_research}
 
@@ -112,6 +115,12 @@ TASK: Generate a complete, professional pitch audit slide deck document with all
 Make it feel like it was custom-researched for this specific client — because it was.
 Use specific details, mention their actual business challenges, and tie every 
 recommendation to a clear ROI outcome.
+
+STRICT BUSINESS CUSTOMIZATION RULES:
+- You MUST customize every section to the client's actual industry (e.g., modular kitchen, hospital, clinic, school, B2B wholesale, retail, etc.) based on their website content and web search findings.
+- DO NOT use B2B clothing-wholesale, ethnic wear, sarees, kurtis, or garment-based examples unless the client is actually in that specific business.
+- Ensure the 'buyer_persona' matches their actual target audience (e.g. Homeowner for a kitchen brand, Patient for a healthcare provider, Parent for a school).
+- Ensure the 'chat_demo_customer' and 'chat_demo_bot' represent a realistic, highly personalized WhatsApp conversation simulation for their business.
 
 If data is limited, write from the perspective of industry expertise — 
 "Based on companies at your stage in [industry], the most common challenge is..."
@@ -199,55 +208,58 @@ Return ONLY valid JSON (no markdown, no code fences, no extra text, just the raw
   }},
 
   "unique_selling_points": [
-    "**Exquisite Craftsmanship:** Detailed description of their product/service quality.",
-    "**Local Heritage:** Detailed description of their regional dominance.",
-    "**Wholesale Scale:** Detailed description of their bulk manufacturing capacity.",
-    "**Custom Ordering:** Detailed description of custom design options.",
-    "**Timely Supply Chain:** Detailed description of their rapid order delivery.",
-    "**Customer Trust:** Detailed description of their business relationship tenure."
+    "**<USP Label 1 e.g. Quality Craftsmanship>:** <Detailed USP description tailored to the client's industry, explaining why this makes them distinct and competitive, at least 15-20 words>",
+    "**<USP Label 2 e.g. Regional Presence>:** <Detailed USP description tailored to the client's industry and location, at least 15-20 words>",
+    "**<USP Label 3 e.g. Capacity & Scale>:** <Detailed USP description of their operations/execution capability, at least 15-20 words>",
+    "**<USP Label 4 e.g. Custom Solutions>:** <Detailed USP description focusing on custom needs/personalization, at least 15-20 words>",
+    "**<USP Label 5 e.g. Rapid Delivery>:** <Detailed USP description of their delivery/service timelines, at least 15-20 words>",
+    "**<USP Label 6 e.g. Customer Trust>:** <Detailed USP description of their customer reviews/trust score, at least 15-20 words>"
   ],
 
   "current_gaps": {{
     "gap_list": [
-      {{"title": "NO AUTOMATED CHAT CATALOGUE", "desc": "Customers cannot browse stock instantly when inquiring on chat; they leave and purchase from competitors who provide a visual menu setup."}},
-      {{"title": "LACK OF TRUSTED DIGITAL HUB", "desc": "There is no formal website or professional digital listing, leading to zero organic search discovery and trust issues for out-of-town wholesale buyers."}},
-      {{"title": "INACTIVE VIDEO MARKETING", "desc": "No active strategy for reels or video presentations, missing out on massive free organic reach and visual showcases of physical inventory."}},
-      {{"title": "LOCAL SEARCH INVISIBILITY", "desc": "Invisible on Google Maps for regional business searches, causing local retail clients and bulk purchasers to go to nearby alternatives instead."}},
-      {{"title": "ZERO SYSTEM INTEGRATION", "desc": "All order and customer inquiries are handled manually on personal chats without central tracking, leading to slow replies and forgotten customer follow-ups."}}
+      {{"title": "<GAP AREA 1 e.g. NO AUTOMATED MENU/CATALOGUE>", "desc": "<Detailed explanation of why this gap prevents sales or causes operational overhead, specifically tailored to the client's business, at least 20-30 words>"}},
+      {{"title": "<GAP AREA 2 e.g. INVISIBLE ON LOCAL SEARCH>", "desc": "<Detailed explanation of why the business misses out on local organic leads or customer discovery, tailored to their region/industry, at least 20-30 words>"}},
+      {{"title": "<GAP AREA 3 e.g. ZERO LEAD TRACKING>", "desc": "<Detailed explanation of the lack of centralized follow-ups and system integration, at least 20-30 words>"}},
+      {{"title": "<GAP AREA 4 e.g. INACTIVE VIDEO ENGAGEMENT>", "desc": "<Detailed explanation of why visual showcase channels like Instagram Reels or video marketing are missing or underutilized, at least 20-30 words>"}},
+      {{"title": "<GAP AREA 5 e.g. MANUAL REPLIES LAG>", "desc": "<Detailed explanation of slow response speeds or manual message handling and its impact on customer conversion, at least 20-30 words>"}}
     ],
-    "current_messaging": "<what they currently show in their social / marketing e.g. Simple catalog images without direct pricing, calls to action, or business identity details>",
-    "buyer_questions": "<what wholesale buyers or target customers actually want to know e.g. Do they have catalog pricing available? Can I get delivery within 3 days? What is the refund policy?>"
+    "current_messaging": "<What the client currently shows in their marketing/social profiles e.g. simple static photos, no direct call-to-actions, or inconsistent posts>",
+    "buyer_questions": "<What their target buyers or customers actually ask or want to know when inquiring on chat/search e.g. Do they have catalog pricing? What is the consultation process? How fast is delivery?>",
+    "buyer_persona": "<The target buyer segment/role e.g. Homeowner, Patient, Retail Shopper, Wholesale Buyer>"
   }},
 
   "metrics_status": [
-    {{"metric": "Brand Identity & Consistency", "status": "Weak", "color": "#F59E0B"}},
-    {{"metric": "Content Quality & Creativity", "status": "Critical", "color": "#EF4444"}},
-    {{"metric": "Audience Engagement", "status": "Critical", "color": "#EF4444"}},
-    {{"metric": "Platform Optimization", "status": "Weak", "color": "#F59E0B"}},
-    {{"metric": "Posting Consistency", "status": "Needs Work", "color": "#3B82F6"}},
-    {{"metric": "Social Proof & Reviews", "status": "Critical", "color": "#EF4444"}},
-    {{"metric": "Website / Digital Hub", "status": "Missing", "color": "#EF4444"}},
-    {{"metric": "Paid Advertising Presence", "status": "Unknown", "color": "#6B7280"}}
+    {{"metric": "Brand Identity & Consistency", "status": "<Weak | Critical | Needs Work | Excellent>", "color": "<Color hex e.g. #F59E0B for Weak, #EF4444 for Critical, #3B82F6 for Needs Work, #10B981 for Excellent>"}},
+    {{"metric": "Content Quality & Creativity", "status": "<Status>", "color": "<Color hex>"}},
+    {{"metric": "Audience Engagement", "status": "<Status>", "color": "<Color hex>"}},
+    {{"metric": "Platform Optimization", "status": "<Status>", "color": "<Color hex>"}},
+    {{"metric": "Posting Consistency", "status": "<Status>", "color": "<Color hex>"}},
+    {{"metric": "Social Proof & Reviews", "status": "<Status>", "color": "<Color hex>"}},
+    {{"metric": "Website / Digital Hub", "status": "<Status>", "color": "<Color hex>"}},
+    {{"metric": "Paid Advertising Presence", "status": "<Status>", "color": "<Color hex>"}},
   ],
 
   "automation_tracking": [
-    {{"title": "Automated Lead Tracker / CRM Sheet", "desc": "An automated system that aggregates all customer inquiries from Instagram, Facebook, and Web Directories into a single, clean tracking spreadsheet for rapid response."}},
-    {{"title": "Customer Conversion & Analytics dashboard", "desc": "A direct analytical tracking system showing monthly leads generated, closing percentage, and total sales revenue produced per marketing channel."}}
+    {{"title": "<System 1 e.g. CRM Integration>", "desc": "<Detailed description of how an automated lead tracker or spreadsheet syncs with their inbound chats to prevent drop-off, at least 20-30 words>"}},
+    {{"title": "<System 2 e.g. Interactive Conversion Dashboard>", "desc": "<Detailed description of how marketing analytics and lead source metrics are tracked dynamically, at least 20-30 words>"}}
   ],
 
   "whatsapp_setup": {{
-    "title": "WhatsApp Business Platform (Urgent)",
+    "title": "<WhatsApp Title e.g. WhatsApp Business Platform (Urgent)>",
     "bullets": [
-      "Auto Welcome & Interactive Menu: Instant welcoming replies sending the digital catalog link as soon as a customer initiates contact.",
-      "Quick Replies for FAQs: One-click shortcut answers for wholesale price lists, location directions, and minimum order quantities.",
-      "Customer Lead Tagging: Auto-labelling chats (e.g. New Lead, Hot Deal, Retail, Wholesale) to make follow-ups clear and organized."
+      "<Automated greeting/menu setup description, 15-25 words>",
+      "<FAQ quick replies and information access description, 15-25 words>",
+      "<Centralized agent routing or lead-tagging description, 15-25 words>"
     ],
-    "benefit": "By setting up interactive reply systems, business response speed increases to 100%, capturing hot buyer intent immediately."
+    "benefit": "<Detailed operational/ROI benefit of the setup, at least 15-20 words>",
+    "chat_demo_customer": "<A realistic initial message a target buyer/customer would send on WhatsApp, tailored to this client e.g. Hi, I want to see your modern kitchen designs and price list>",
+    "chat_demo_bot": "<A realistic, helpful automated bot response showing the options or answers they would receive, including bullet points using unicode bullet (•) e.g. Hello! Welcome to Rasoi Kitchen. 🍳 here are your options:\\n• View Design Catalog: CatalogLink\\n• Book Free Design Session: BookingLink\\n• Our Raipur Showroom Location>"
   }},
 
   "cta": {{
-    "headline": "<personalized headline e.g. SHAPE YOUR DIGITAL IDENTITY & SECURE WHOLESALE GROWTH>",
-    "recommended_next_step": "<personalized next action detailing concrete steps e.g. Let's design a high-converting WhatsApp automation catalog, register your Google Business Profile, and launch targeted local ads to capture wholesale queries next week.>",
+    "headline": "<personalized headline e.g. SHAPE YOUR DIGITAL IDENTITY & SECURE GROWTH>",
+    "recommended_next_step": "<personalized next action detailing concrete steps e.g. Let's design a high-converting WhatsApp automation catalog, register your Google Business Profile, and launch targeted local ads to capture queries next week.>",
     "contact": {{
       "phone": "+91-9039034412",
       "email": "support@impression.pr"

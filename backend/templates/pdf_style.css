@@ -7,7 +7,7 @@
 
 @page {
     size: a4 landscape;
-    margin: 10mm;
+    margin: 0;
 }
 
 * {
@@ -34,20 +34,35 @@ h1, h2, h3, h4 {
 
 /* ═══════════════════════════════════════════════════════ SLIDE STRUCTURE */
 .slide {
-    width: 277mm; /* A4 Landscape width is 297mm minus 20mm margin */
-    height: 190mm; /* A4 Landscape height is 210mm minus 20mm margin */
+    width: 297mm; /* Full A4 Landscape width */
+    height: 210mm; /* Full A4 Landscape height */
     page-break-after: always;
+    page-break-inside: avoid;
     background-color: #FFFFFF;
     border: 1pt solid #E2E8F0;
     border-radius: 20pt;
-    padding: 25pt;
+    padding: 30pt;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     position: relative;
     overflow: hidden;
-    margin-bottom: 20pt; /* spacing in HTML preview */
+    margin: 0 auto 20pt auto; /* spacing in HTML preview */
     box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+}
+
+@media print {
+    body {
+        background-color: #FFFFFF;
+    }
+    .slide {
+        margin: 0;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        width: 297mm;
+        height: 210mm;
+    }
 }
 
 /* Slide top accent line */

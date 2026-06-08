@@ -32,7 +32,7 @@ def upload_to_drive(file_path: str, file_name: str):
         scope = ["https://www.googleapis.com/auth/drive"]
         creds_path = os.path.join(os.getcwd(), "service_account.json")
         creds = Credentials.from_service_account_file(creds_path, scopes=scope)
-        service = build("drive", "v3", credentials=creds)
+        service = build("drive", "v3", credentials=creds, cache_discovery=False)
 
         file_metadata = {
             "name": file_name,
@@ -60,7 +60,10 @@ def upload_to_drive(file_path: str, file_name: str):
         res = service.files().get(fileId=file_id, fields="webViewLink").execute()
         return res.get("webViewLink")
     except Exception as e:
-        logger.error(f"[DRIVE] Upload failed: {e}")
+        if "storageQuotaExceeded" in str(e) or "quota" in str(e).lower():
+            logger.warning("[DRIVE] Service Account storage quota exceeded. Falling back to local PDF link.")
+        else:
+            logger.error(f"[DRIVE] Upload failed: {e}")
         return None
 
 
@@ -106,6 +109,10 @@ async def generate_audit(inp: AuditFormInput):
     logger.info("[STEP 4] Generating full audit document...")
     try:
         audit_content = await analysis_service.generate_audit(inp, research_data, gap_analysis)
+        # Inject social URLs into company_overview so templates can access them
+        if isinstance(audit_content, dict) and "company_overview" in audit_content:
+            audit_content["company_overview"]["linkedin_url"] = inp.linkedin_url
+            audit_content["company_overview"]["social_media_handles"] = inp.social_media_handles
     except Exception as e:
         logger.error(f"Audit generation failed: {e}")
         raise HTTPException(status_code=500, detail=f"Audit generation failed: {str(e)}")

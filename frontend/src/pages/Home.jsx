@@ -147,6 +147,7 @@ export default function Home() {
                       <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Target Company</th>
                       <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Generation Date</th>
                       {isAdmin && <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Specialist</th>}
+                      <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Report Deck</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -174,6 +175,25 @@ export default function Home() {
                              </div>
                           </td>
                         )}
+                        <td className="px-8 py-6 text-center">
+                          {item.qr_code && item.qr_code !== '#' && item.qr_code !== 'N/A' ? (
+                            <button
+                              onClick={() => {
+                                let url = item.qr_code;
+                                if (url.startsWith('/api') && window.location.port === '3000') {
+                                  url = `http://localhost:8000${url}`;
+                                }
+                                window.open(url, '_blank');
+                              }}
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-black shadow-md shadow-emerald-700/10 hover:shadow-lg transition-all"
+                            >
+                              <FileDown size={14} />
+                              Download PDF
+                            </button>
+                          ) : (
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No Link</span>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

@@ -125,6 +125,8 @@ async def generate_audit(inp: AuditFormInput, research_data: dict, gap_analysis:
         "industry": inp.industry or research_data.get("inferred_industry", "Unknown"),
         "size": inp.company_size,
         "location": inp.location or "India",
+        "linkedin_url": inp.linkedin_url,
+        "social_media_handles": inp.social_media_handles,
         "pain_points": inp.pain_points,
         "requirements": inp.requirements,
         "current_tools": inp.current_tools,
@@ -139,10 +141,19 @@ async def generate_audit(inp: AuditFormInput, research_data: dict, gap_analysis:
     # Trim to prevent token overflow
     industry_research = str(research_data.get("industry_trends", ""))[:1500]
     competitor_context = str(research_data.get("competitor_analysis", ""))[:1500]
+    
+    company_research = (
+        f"Scraped Website Content:\n{research_data.get('website_content', '')[:1500]}\n\n"
+        f"Google Search Company Overview:\n{research_data.get('company_info', '')[:1000]}\n\n"
+        f"Detected Social Media Presence:\n{research_data.get('social_presence', '')[:800]}\n\n"
+        f"Customer Reviews & Ratings:\n{research_data.get('reviews', '')[:800]}\n\n"
+        f"Recent News / Press:\n{research_data.get('news', '')[:800]}"
+    )
 
     prompt = PROMPT_AUDIT_GENERATION.format(
         client_context=json.dumps(client_context, ensure_ascii=False),
         gap_analysis=json.dumps(gap_analysis, ensure_ascii=False)[:2000],
+        company_research=company_research,
         industry_research=industry_research,
         competitor_context=competitor_context,
     )

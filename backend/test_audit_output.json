@@ -1,0 +1,187 @@
+{
+    "audit_meta": {
+        "client_name": "MMI Narayana Hospital",
+        "industry": "Healthcare",
+        "report_id": "IP-2026",
+        "audit_date": "June 06, 2026",
+        "location": "Raipur, Chhattisgarh",
+        "prepared_by": "Impression.pr"
+    },
+    "company_overview": {
+        "about": "MMI Narayana Hospital, situated in the heart of Raipur, is a leading healthcare provider dedicated to offering top-notch medical services to the local community. With a team of highly skilled professionals and state-of-the-art facilities, the hospital caters to a wide range of healthcare needs, ensuring patient-centric care and wellness. Operating daily, the hospital is committed to improving health outcomes and enhancing the quality of life for its patients.",
+        "location_text": "Raipur, Chhattisgarh",
+        "business_type": "Healthcare Provider",
+        "products": "Comprehensive healthcare services including outpatient, inpatient, surgical, and emergency care.",
+        "digital_presence": "Currently lacks a dedicated website and has minimal social media engagement.",
+        "current_gap_banner": "No Website - Manual WhatsApp Replies - Slow Response Time"
+    },
+    "agenda": [
+        "BRAND IDENTITY",
+        "COMPETITOR ANALYSIS",
+        "UNIQUE SELLING POINTS",
+        "CURRENT GAP",
+        "METRIC & STATUS",
+        "AUTOMATION & TRACKING",
+        "WHATSAPP SETUP",
+        "RECOMMENDED NEXT STEPS"
+    ],
+    "brand_identity": {
+        "purpose": "MMI Narayana Hospital is committed to delivering exceptional healthcare services with a focus on patient care and community health improvement. Our vision is to be the most trusted healthcare provider in Raipur, ensuring quality and compassionate care for all.",
+        "suggested_colors": [
+            {
+                "name": "Primary Brand Color",
+                "value": "#D97706"
+            },
+            {
+                "name": "Secondary Accent",
+                "value": "#475569"
+            },
+            {
+                "name": "Highlight Color",
+                "value": "#7C3AED"
+            },
+            {
+                "name": "Text Color",
+                "value": "#1E293B"
+            },
+            {
+                "name": "Background Tint",
+                "value": "#F8FAFC"
+            }
+        ],
+        "personality": [
+            "Trusted",
+            "Quality-First",
+            "Professional",
+            "Reliable"
+        ]
+    },
+    "competitor_analysis": {
+        "comparison_table": [
+            {
+                "entity": "MMI Narayana Hospital",
+                "instagram": "Inactive",
+                "text_website": "None",
+                "text_whatsapp": "Manual Replies",
+                "text_youtube": "None"
+            },
+            {
+                "entity": "Competitor A",
+                "instagram": "5K followers / Active",
+                "text_website": "Fully Functional",
+                "text_whatsapp": "Automated Replies",
+                "text_youtube": "500 followers"
+            },
+            {
+                "entity": "Competitor B",
+                "instagram": "3K followers / Active",
+                "text_website": "Basic Information",
+                "text_whatsapp": "Manual Replies",
+                "text_youtube": "200 followers"
+            }
+        ]
+    },
+    "unique_selling_points": [
+        "**Comprehensive Care:** MMI Narayana Hospital offers a wide range of medical services under one roof, ensuring holistic patient care.",
+        "**Advanced Technology:** The hospital is equipped with state-of-the-art medical equipment, providing cutting-edge treatment options.",
+        "**Expert Medical Team:** A team of highly qualified and experienced doctors and healthcare professionals dedicated to patient well-being.",
+        "**Patient-Centric Approach:** Focused on delivering personalized care tailored to individual patient needs and preferences.",
+        "**Community Engagement:** Actively involved in health awareness programs and community health initiatives to promote wellness.",
+        "**Trusted Reputation:** Known for its commitment to quality care and patient satisfaction, building long-term trust with the community."
+    ],
+    "current_gaps": {
+        "gap_list": [
+            {
+                "title": "LOW ONLINE PRESENCE",
+                "desc": "Without a dedicated website, the hospital misses out on reaching potential patients searching for healthcare services online, leading to lost opportunities."
+            },
+            {
+                "title": "MANUAL WHATSAPP REPLIES",
+                "desc": "Current manual response system on WhatsApp leads to slow reply times, risking patient dissatisfaction and potential loss of inquiries."
+            },
+            {
+                "title": "SLOW RESPONSE TIME",
+                "desc": "Delayed responses to patient inquiries can result in missed appointments and reduced patient trust in the hospital's services."
+            },
+            {
+                "title": "LACK OF GOOGLE BUSINESS OPTIMIZATION",
+                "desc": "Not optimized on Google Business, making it difficult for patients to find accurate information or reviews, affecting new patient acquisition."
+            },
+            {
+                "title": "NO DIGITAL ENGAGEMENT STRATEGY",
+                "desc": "Absence of a digital engagement strategy results in low visibility and interaction with potential patients on social media platforms."
+            }
+        ],
+        "current_messaging": "Basic service descriptions without engaging content or call-to-action elements.",
+        "buyer_questions": "What are the available specialties? How can I book an appointment? What are the hospital's visiting hours?"
+    },
+    "metrics_status": [
+        {
+            "metric": "Brand Identity & Consistency",
+            "status": "Weak",
+            "color": "#F59E0B"
+        },
+        {
+            "metric": "Content Quality & Creativity",
+            "status": "Weak",
+            "color": "#F59E0B"
+        },
+        {
+            "metric": "Audience Engagement",
+            "status": "Critical",
+            "color": "#EF4444"
+        },
+        {
+            "metric": "Platform Optimization",
+            "status": "Weak",
+            "color": "#F59E0B"
+        },
+        {
+            "metric": "Posting Consistency",
+            "status": "Needs Work",
+            "color": "#3B82F6"
+        },
+        {
+            "metric": "Social Proof & Reviews",
+            "status": "Critical",
+            "color": "#EF4444"
+        },
+        {
+            "metric": "Website / Digital Hub",
+            "status": "Missing",
+            "color": "#EF4444"
+        },
+        {
+            "metric": "Paid Advertising Presence",
+            "status": "Unknown",
+            "color": "#6B7280"
+        }
+    ],
+    "automation_tracking": [
+        {
+            "title": "Automated Appointment Booking System",
+            "desc": "A system that allows patients to book appointments online, reducing manual scheduling and improving patient convenience."
+        },
+        {
+            "title": "Patient Feedback & Review Dashboard",
+            "desc": "A platform to collect and analyze patient feedback, enhancing service quality and patient satisfaction."
+        }
+    ],
+    "whatsapp_setup": {
+        "title": "WhatsApp Business Platform (Urgent)",
+        "bullets": [
+            "Auto Welcome & Interactive Menu: Instant welcoming replies sending appointment booking links as soon as a patient contacts.",
+            "Quick Replies for FAQs: One-click shortcut answers for common inquiries like visiting hours, doctor availability, and services offered.",
+            "Customer Lead Tagging: Auto-labelling chats (e.g. New Patient, Follow-up, Emergency) to streamline patient management and follow-ups."
+        ],
+        "benefit": "By setting up interactive reply systems, business response speed increases to 100%, capturing patient inquiries and improving satisfaction."
+    },
+    "cta": {
+        "headline": "ENHANCE YOUR DIGITAL FOOTPRINT & IMPROVE PATIENT ENGAGEMENT",
+        "recommended_next_step": "Let's create a dynamic website, optimize your Google Business profile, and implement a WhatsApp automation system to streamline patient communication and boost your online presence. Start capturing more patient inquiries and appointments today.",
+        "contact": {
+            "phone": "+91-9039034412",
+            "email": "support@impression.pr"
+        }
+    }
+}
